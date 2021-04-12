@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
+const utils = require("../utils/utils");
 
 // Register route
 router.post(
   "/register",
   passport.authenticate("register", { session: false }),
-  (req, res, next) => {
+  (req, res) => {
     res.status(201).json({
       message: "Register successful",
       user: req.user.username,
@@ -33,13 +34,14 @@ router.get("/logout", (req, res) => {
 });
 
 // Only allow authenticated users to access protected route
-router.get("/home", ensureAuthenticated, (req, res) => {
+router.get("/home", utils.ensureAuthenticated, (req, res) => {
   res.status(200).json({ message: "Authenticated!" });
 });
 
-const ensureAuthenticated = (req, res, next) => {
-  if (req.isAuthenticated()) return next();
-  res.redirect("/");
-};
+// Middleware to check if a user is authenticated
+//const ensureAuthenticated = (req, res, next) => {
+//  if (req.isAuthenticated()) return next();
+//  res.redirect("/");
+//};
 
 module.exports = router;

@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
-//const cors = require("cors");
+const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const connectDB = require("./db/db");
@@ -14,7 +14,7 @@ const authRoutes = require("./routes/auth");
 connectDB();
 
 // Enable cors
-//app.use(cors());
+app.use(cors());
 
 // Implement a Root-Level Request Logger Middleware
 app.use((req, res, next) => {
