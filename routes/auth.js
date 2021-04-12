@@ -10,7 +10,8 @@ router.post(
   (req, res) => {
     res.status(201).json({
       message: "Register successful",
-      user: req.user.username,
+      user: req.user,
+      //user: req.user.username,
     });
   }
 );
