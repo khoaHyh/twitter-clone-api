@@ -1,0 +1,10 @@
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const app = express();
+const session = require("express-session");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const MongoStore = require("connect-mongo");
+const passport = require("passport");
