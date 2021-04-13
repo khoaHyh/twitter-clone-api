@@ -7,7 +7,7 @@ const utils = require("../utils/utils");
 router.post(
   "/register",
   passport.authenticate("register", { session: false }),
-  (req, res) => {
+  async (req, res, next) => {
     res.status(201).json({
       message: "Register successful",
       user: req.user,
@@ -22,7 +22,7 @@ router.post(
   passport.authenticate("local", {
     failureRedirect: "/login",
   }),
-  (req, res) => {
+  async (req, res, next) => {
     res.status(200).json({ username: req.user.username });
     res.redirect("/home");
   }

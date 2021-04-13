@@ -27,10 +27,10 @@ module.exports = (passport) => {
         }
 
         // Hash password before saving it in database
-        const hashedPassword = await brypt.hash(password, 12);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
         // Insert user into the database
-        user = await User.create({ username, hashedPassword });
+        user = await User.create({ username, password: hashedPassword });
         return done(null, user);
       } catch (error) {
         console.log("passport register error:", error);

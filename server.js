@@ -9,9 +9,13 @@ const passport = require("passport");
 const connectDB = require("./db/db");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const authRoutes = require("./routes/auth");
+const auth = require("./auth");
 
 // Connect to MongoDB
 connectDB();
+
+// Allow app to use passport strategies
+auth(passport);
 
 // Enable cors
 //app.use(cors());
@@ -54,6 +58,7 @@ app.use("/", authRoutes);
 // Handle errors
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
+  console.log(err);
   res.json({ error: err });
 });
 
