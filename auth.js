@@ -5,6 +5,7 @@ const User = require("./models/user");
 module.exports = (passport) => {
   // Convert object contents into a key
   passport.serializeUser((user, done) => done(null, user._id));
+
   // Convert key into original object and retrieve object contents
   passport.deserializeUser((id, done) => {
     User.findById(id, (err, user) => {
@@ -12,6 +13,7 @@ module.exports = (passport) => {
       done(null, user);
     });
   });
+
   // Define process to use when a user registers
   passport.use(
     "register",
@@ -39,6 +41,7 @@ module.exports = (passport) => {
       }
     })
   );
+
   // Define process to use when we try to authenticate someone locally
   passport.use(
     "login",
