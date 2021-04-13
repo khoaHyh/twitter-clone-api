@@ -21,6 +21,7 @@ module.exports = (passport) => {
 
         // If a user document exists then the username is taken
         if (user) {
+          console.log(`Username '${username}' is taken.`);
           return done(null, false, {
             message: `Username '${username}' is taken.`,
           });

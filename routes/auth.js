@@ -4,22 +4,25 @@ const passport = require("passport");
 const utils = require("../utils/utils");
 
 // Register route
-router.post(
-  "/register",
-  passport.authenticate("register", { session: false }),
-  async (req, res, next) => {
-    res.status(201).json({
+router.post("/register", async (req, res, next) => {
+  passport.authenticate("register", { session: false }, (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      console.log("info:", info);
+      return res.status(401).json({ success: false, message: info.message });
+    }
+    return res.status(201).json({
+      success: true,
       message: "Register successful",
-      user: req.user,
-      //user: req.user.username,
+      user: user,
     });
-  }
-);
+  })(req, res, next);
+});
 
 // Login route
 router.post(
   "/login",
-  passport.authenticate("local", {
+  passport.authenticate("login", {
     failureRedirect: "/login",
   }),
   async (req, res, next) => {
