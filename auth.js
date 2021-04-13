@@ -52,6 +52,7 @@ module.exports = (passport) => {
 
         // If no user is found with that username
         if (!user) {
+          console.log(`User ${username} doesn't exist.`);
           return done(null, false, {
             message: "Invalid username or password.",
           });
@@ -61,6 +62,7 @@ module.exports = (passport) => {
 
         // If the password provided is incorrect
         if (!validated) {
+          console.log("Invalid password");
           return done(null, false, {
             message: "Invalid username or password.",
           });

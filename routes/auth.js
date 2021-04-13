@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 const utils = require("../utils/utils");
 const handleRegister = require("../controllers/handleRegister");
 const handleLogin = require("../controllers/handleLogin");
@@ -19,7 +18,11 @@ router.get("/logout", (req, res) => {
 
 // Only allow authenticated users to access protected route
 router.get("/home", utils.ensureAuthenticated, (req, res) => {
-  res.status(200).json({ message: "Authenticated!" });
+  res.status(200).json({
+    message: "Authenticated!",
+    sessionPassportId: req.session.passport.user,
+    username: req.user.username,
+  });
 });
 
 module.exports = router;
