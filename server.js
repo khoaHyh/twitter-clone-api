@@ -14,6 +14,7 @@ const connectDB = require("./db/db");
 const auth = require("./auth");
 const authRoutes = require("./routes/auth");
 const utils = require("./utils/utils");
+const ConversationData = require("./models/conversationData");
 
 // Connect to MongoDB
 connectDB();
@@ -103,9 +104,41 @@ io.on("connection", (socket) => {
     console.log(`User ${socketUsername} has disconnected.`);
   });
 
-  // Listen to socket for the event 'chat message' to emit an event to all sockets some data once the event is received
-  socket.on("chat message", (message) => {
-    io.emit("chat message", { name: socketUsername, message });
+  // Listen to socket for event 'sent-message'
+  socket.on("send-message", ({ chatId, sender, message, timestamp }) => {
+    const update = {
+      new: true,
+      upsert: true,
+      safe: true,
+    };
+
+    // Update conversation history by finding the chatId and updating the document
+    let conversation = ConversationData.findByIdAndUpdate(
+      chatId,
+      {
+        $push: { conversation: { message, timestamp, sender } },
+      },
+      update,
+      (err, data) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json(err);
+        }
+      }
+    );
+
+    // If this is a new conversation, insert a new document and add the conversation information
+    if (!conversation) {
+      ConversationData.create(
+        { conversation: { message, timestamp, sender } },
+        (err, data) => {
+          if (err) console.log(err);
+        }
+      );
+    }
+
+    // Emit a 'receive-message' event for the client containing conversation data
+    socket.emit("receive-message", data.conversation);
   });
 });
 
