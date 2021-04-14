@@ -6,16 +6,22 @@ const cookieParser = require("cookie-parser");
 //const cors = require("cors");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
-const connectDB = require("./db/db");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
-const authRoutes = require("./routes/auth");
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+const passportSocketIo = require("passport.socketio");
+const connectDB = require("./db/db");
 const auth = require("./auth");
+const authRoutes = require("./routes/auth");
+const utils = require("./utils/utils");
 
 // Connect to MongoDB
 connectDB();
 
 // Allow app to use passport strategies
 auth(passport);
+
+/**** START OF MIDDLEWARE ****/
 
 // Enable cors
 //app.use(cors());
@@ -52,6 +58,18 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Use session store to determine who is connected to our web socket
+io.use(
+  passportSocketIo.authorize({
+    key: "express.sid",
+    store: sessionStore,
+    cookieParser: cookieParser,
+    secret: process.env.SESSION_SECRET,
+    success: utils.onAuthorizeSuccess,
+    fail: utils.onAuthorizeFail,
+  })
+);
+
 // Middleware for auth routes
 app.use("/", authRoutes);
 
@@ -60,6 +78,25 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   console.log(err);
   res.json({ error: err });
+});
+
+/**** END OF MIDDLEWARE ****/
+
+// Listen for connections to our server
+io.on("connection", (socket) => {
+  // Announce when a user connects
+  io.emit("user", {
+    name: socket.request.user.username,
+    connected: true,
+  });
+
+  // Listen for disconnections from our server
+  socket.on("disconnect", () => {
+    io.emit("user", {
+      name: socket.request.user.username,
+      connected: false,
+    });
+  });
 });
 
 const PORT = process.env.PORT || 8080;

@@ -13,9 +13,6 @@ router.post("/login", handleLogin);
 
 // Logout route
 router.get("/logout", handleLogout);
-//  req.logout();
-//  res.status(200).json({ message: "Unauthenticated." });
-//});
 
 // Only allow authenticated users to access protected route
 router.get("/home", utils.ensureAuthenticated, (req, res) => {

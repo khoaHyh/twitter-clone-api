@@ -1,3 +1,4 @@
+// Differentiate on outcome of logout handler by response body instead of http status code
 module.exports = (req, res) => {
   if (!req.user) {
     // Could return a status code of 404 but depends what the client prefers
