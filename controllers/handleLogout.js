@@ -1,8 +1,8 @@
 module.exports = (req, res) => {
   if (!req.user) {
-    // Could return a status code of 200 but depends what the client prefers
+    // Could return a status code of 404 but depends what the client prefers
     return res
-      .status(404)
+      .status(200)
       .json({ message: "No user session to unauthenticate." });
   }
   req.logout();

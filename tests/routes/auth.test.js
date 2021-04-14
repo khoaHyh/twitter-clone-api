@@ -47,7 +47,6 @@ describe("Auth route", function () {
           .send(existingUser);
 
         expect(result.status).to.equal(200);
-        expect(result.body).to.not.be.empty;
         expect(result.body).to.have.property("username");
       } catch (error) {
         console.log(error);
@@ -79,7 +78,7 @@ describe("Auth route", function () {
   });
 
   describe("GET /logout to test logout", function () {
-    it("should return 200 if user logs out", async function () {
+    it("should return 200 and 'Unauthenticated' if user logs out", async function () {
       // Utilize .request.agent from chai-http to authenticated user then subsequently unauthenticate them
       const agent = chai.request.agent(app);
 
@@ -87,14 +86,22 @@ describe("Auth route", function () {
         await agent.post("/login").send(existingUser);
         const authenticatedResponse = await agent.get("/logout");
         expect(authenticatedResponse).to.have.status(200);
+        expect(authenticatedResponse).to.have.property("body");
+        expect(authenticatedResponse.body)
+          .to.have.property("message")
+          .equal("Unauthenticated.");
       } catch (error) {
         console.log(error);
       }
     });
   });
-  it("should return 404 if no user session exists to logout", async function () {
+  it("should return 'No user session to unauthenticate' if no user session exists to logout", async function () {
     const agent = chai.request.agent(app);
     const noSessionResponse = await agent.get("/logout");
-    expect(noSessionResponse).to.have.status(404);
+    expect(noSessionResponse).to.have.status(200);
+    expect(noSessionResponse).to.have.property("body");
+    expect(noSessionResponse.body)
+      .to.have.property("message")
+      .equal("No user session to unauthenticate.");
   });
 });
