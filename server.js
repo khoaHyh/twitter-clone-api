@@ -84,23 +84,33 @@ app.use((err, req, res, next) => {
 
 // Listen for connections to our server
 io.on("connection", (socket) => {
+  let socketUsername = socket.request.user.username;
+
   // Announce when a user connects
   io.emit("user", {
-    name: socket.request.user.username,
+    name: socketUsername,
     connected: true,
   });
+  console.log(`User ${socketUsername} connected.`);
 
   // Listen for disconnections from our server
   socket.on("disconnect", () => {
+    // Announce when a user disconnects
     io.emit("user", {
-      name: socket.request.user.username,
+      name: socketUsername,
       connected: false,
     });
+    console.log(`User ${socketUsername} has disconnected.`);
+  });
+
+  // Listen to socket for the event 'chat message' to emit an event to all sockets some data once the event is received
+  socket.on("chat message", (message) => {
+    io.emit("chat message", { name: socketUsername, message });
   });
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
 
