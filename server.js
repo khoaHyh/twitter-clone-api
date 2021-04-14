@@ -14,7 +14,6 @@ const connectDB = require("./db/db");
 const auth = require("./auth");
 const authRoutes = require("./routes/auth");
 const utils = require("./utils/utils");
-const ConversationData = require("./models/conversationData");
 
 // Connect to MongoDB
 connectDB();

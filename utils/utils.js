@@ -1,4 +1,4 @@
-const ConversationData = require("./models/conversationData");
+const ConversationData = require("../models/conversationData");
 
 // Middleware to check if a user is authenticated
 const ensureAuthenticated = (req, res, next) => {
