@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const conversationDataSchema = new mongoose.Schema({
-  conversation: [
+const chatDataSchema = new mongoose.Schema({
+  chat: [
     {
       message: String,
       timestamp: String, // client would set timestamp in this API
@@ -10,4 +10,4 @@ const conversationDataSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("conversationData", conversationDataSchema);
+module.exports = mongoose.model("chatData", chatDataSchema);
