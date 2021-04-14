@@ -92,4 +92,9 @@ describe("Auth route", function () {
       }
     });
   });
+  it("should return 404 if no user session exists to logout", async function () {
+    const agent = chai.request.agent(app);
+    const noSessionResponse = await agent.get("/logout");
+    expect(noSessionResponse).to.have.status(404);
+  });
 });

@@ -3,6 +3,7 @@ const router = express.Router();
 const utils = require("../utils/utils");
 const handleRegister = require("../controllers/handleRegister");
 const handleLogin = require("../controllers/handleLogin");
+const handleLogout = require("../controllers/handleLogout");
 
 // Register route
 router.post("/register", handleRegister);
@@ -11,10 +12,10 @@ router.post("/register", handleRegister);
 router.post("/login", handleLogin);
 
 // Logout route
-router.get("/logout", (req, res) => {
-  req.logout();
-  res.status(200).json({ message: "Unauthenticated." });
-});
+router.get("/logout", handleLogout);
+//  req.logout();
+//  res.status(200).json({ message: "Unauthenticated." });
+//});
 
 // Only allow authenticated users to access protected route
 router.get("/home", utils.ensureAuthenticated, (req, res) => {
