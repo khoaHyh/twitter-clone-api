@@ -4,15 +4,16 @@ const utils = require("../utils/utils");
 const handleRegister = require("../controllers/handleRegister");
 const handleLogin = require("../controllers/handleLogin");
 const handleLogout = require("../controllers/handleLogout");
+const handleAuth = require("../controllers/handleAuth");
 
 // Register route
-router.post("/register", handleRegister);
+router.post("/register", handleAuth.register);
 
 // Login route
-router.post("/login", handleLogin);
+router.post("/login", handleAuth.login);
 
 // Logout route
-router.get("/logout", handleLogout);
+router.get("/logout", handleAuth.logout);
 
 // Only allow authenticated users to access protected route
 router.get("/home", utils.ensureAuthenticated, (req, res) => {

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
-const chatDataSchema = new mongoose.Schema({
+const directMessageSchema = new mongoose.Schema({
+  type: String,
+  create_timestamp: String,
   chat: [
     {
       message: String,
@@ -10,4 +12,4 @@ const chatDataSchema = new mongoose.Schema({
   ],
 });
 
-module.exports = mongoose.model("chatData", chatDataSchema);
+module.exports = mongoose.model("directMessage", directMessageSchema);
