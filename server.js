@@ -7,13 +7,9 @@ const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo");
 const passport = require("passport");
 const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
-const http = require("http").createServer(app);
-const io = require("socket.io")(http);
-const passportSocketIo = require("passport.socketio");
 const connectDB = require("./db/db");
 const auth = require("./auth");
 const authRoutes = require("./routes/auth");
-const utils = require("./utils/utils");
 
 // Connect to MongoDB
 connectDB();
@@ -58,18 +54,6 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Use session store to determine who is connected to our web socket
-io.use(
-  passportSocketIo.authorize({
-    key: "express.sid",
-    store: sessionStore,
-    cookieParser: cookieParser,
-    secret: process.env.SESSION_SECRET,
-    success: utils.onAuthorizeSuccess,
-    fail: utils.onAuthorizeFail,
-  })
-);
-
 // Middleware for auth routes
 app.use("/", authRoutes);
 
@@ -82,36 +66,8 @@ app.use((err, req, res, next) => {
 
 /**** END OF MIDDLEWARE ****/
 
-// Listen for connections to our server
-io.on("connection", (socket) => {
-  let socketUsername = socket.request.user.username;
-
-  // Announce when a user connects
-  io.emit("user", {
-    name: socketUsername,
-    connected: true,
-  });
-  console.log(`User ${socketUsername} connected.`);
-
-  // Listen for disconnections from our server
-  socket.on("disconnect", () => {
-    // Announce when a user disconnects
-    io.emit("user", {
-      name: socketUsername,
-      connected: false,
-    });
-    console.log(`User ${socketUsername} has disconnected.`);
-  });
-
-  // Listen to socket for event 'sent-message'
-  socket.on("send-message", utils.sendMessage);
-
-  // Listen to socket for event 'new-chat'
-  socket.on("new-chat");
-});
-
 const PORT = process.env.PORT || 8080;
-http.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Listening on port ${PORT}`);
 });
 
