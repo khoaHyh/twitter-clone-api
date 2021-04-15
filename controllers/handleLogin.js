@@ -8,9 +8,11 @@ module.exports = async (req, res, next) => {
     }
     req.logIn(user, (err) => {
       if (err) return next(err);
-      return res
-        .status(200)
-        .json({ success: true, username: user, message: info.message });
+      return res.status(200).json({
+        success: true,
+        message: info.message,
+        userId: user._id,
+      });
     });
   })(req, res, next);
 };

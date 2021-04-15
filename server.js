@@ -107,6 +107,7 @@ io.on("connection", (socket) => {
   socket.on("send-message", utils.sendMessage);
 
   // Listen to socket for event 'new-chat'
+  socket.on("new-chat");
 });
 
 const PORT = process.env.PORT || 8080;

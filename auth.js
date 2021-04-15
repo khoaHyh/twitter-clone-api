@@ -34,7 +34,9 @@ module.exports = (passport) => {
 
         // Insert user into the database
         user = await User.create({ username, password: hashedPassword });
-        return done(null, user);
+        return done(null, user, {
+          message: `User ${username} successfully registered!`,
+        });
       } catch (error) {
         console.log("passport register error:", error);
         done(error);

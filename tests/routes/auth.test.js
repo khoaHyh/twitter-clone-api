@@ -19,10 +19,11 @@ describe("Auth route", function () {
   };
 
   describe("POST /register", function () {
-    it("should return 201 if user does not already exist", async function () {
+    it("should return 201 and user's id if user does not already exist", async function () {
       try {
         const result = await chai.request(app).post("/register").send(newUser);
         expect(result.status).to.equal(201);
+        expect(result.body).to.have.property("userId");
       } catch (error) {
         console.log(error);
       }
@@ -39,7 +40,7 @@ describe("Auth route", function () {
   });
 
   describe("POST /login", function () {
-    it("should return 200 if user successfully logs in", async function () {
+    it("should return 200 and user's id if user successfully logs in", async function () {
       try {
         const result = await chai
           .request(app)
@@ -47,7 +48,7 @@ describe("Auth route", function () {
           .send(existingUser);
 
         expect(result.status).to.equal(200);
-        expect(result.body).to.have.property("username");
+        expect(result.body).to.have.property("userId");
       } catch (error) {
         console.log(error);
       }
