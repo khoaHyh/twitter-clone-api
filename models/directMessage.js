@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
 const directMessageSchema = new mongoose.Schema({
-  type: String,
   conversation: [
     {
-      message: String,
+      recipientId: String,
+      senderId: String,
       created_timestamp: String,
-      sender: String,
+      text: String,
     },
   ],
 });

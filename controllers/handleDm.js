@@ -7,30 +7,43 @@ const createMessage = async (req, res, next) => {
   const senderId = req.user._id;
   const timestamp = Date.now();
 
-  let recipientId;
-  let recipientName;
-
   // Find recipient id
-  await User.findOne({ username: recipient }, (err, data) => {
-    if (err) return next(err);
-    recipientId = data._id;
-    recipientName = data.username;
-  });
+  let recipientData = await User.findOne(
+    { username: recipient },
+    (err, data) => {
+      if (err) return next(err);
+      recipientId = data._id;
+      recipientName = data.username;
+    }
+  );
+
+  // Return error message if recipient does not exist
+  if (!recipientData)
+    return res.status(404).json({ message: "Recipient not found." });
 
   // update properties for this specific mongoose update
-  const update = {
+  const options = {
     new: true,
     upsert: true,
     safe: true,
+  };
+
+  const dmData = {
+    conversation: {
+      recipientId: recipientData._id,
+      senderId,
+      created_timestamp: timestamp,
+      text,
+    },
   };
 
   // Update the conversation array if there is an exiting DM between the two accounts
   let newDm = await DirectMessage.findByIdAndUpdate(
     id,
     {
-      $push: { conversation: { recipient, sender, text } },
+      $push: dmData,
     },
-    update,
+    options,
     (err, data) => {
       if (err) return next(err);
     }
@@ -38,27 +51,28 @@ const createMessage = async (req, res, next) => {
 
   // If there is no existing DM between the two accounts, create a new document
   if (!newDm) {
-    DirectMessage.create(
-      { conversation: { recipient, sender, text } },
-      (err, data) => {
-        if (err) return next(err);
-        console.log("create new dm id");
-        id = data._id;
-      }
-    );
+    newDm = DirectMessage.create(dmData, (err, data) => {
+      if (err) return next(err);
+      console.log("create new dm id");
+      id = data._id;
+    });
   }
+
+  console.log(newDm);
 
   console.log("message created");
   res.status(200).json({
     type: "message_create",
-    id: "unique document id (_id of document)",
+    id: id,
     created_timestamp: timestamp,
     message_create: {
-      recipient_name: recipientName,
-      recipient_id: recipientId,
+      recipient_name: recipientData.username,
+      recipient_id: recipientData._id,
       username: req.user.username,
       sender_id: senderId,
-      text: text,
+      message_data: {
+        text,
+      },
     },
   });
 };
