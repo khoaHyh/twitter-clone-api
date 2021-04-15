@@ -51,4 +51,13 @@ const logout = (req, res) => {
   res.status(200).json({ message: "Unauthenticated." });
 };
 
-module.exports = { register, login, logout };
+// Respond with code 200 and specific response body if user session exists
+const sessionExists = (req, res) => {
+  res.status(200).json({
+    message: "Authenticated!",
+    sessionPassportId: req.session.passport.user,
+    username: req.user.username,
+  });
+};
+
+module.exports = { register, login, logout, sessionExists };
