@@ -19,7 +19,7 @@ describe("Auth route", function () {
   };
 
   describe("POST /register", function () {
-    it("should return 201 and user's id if user does not already exist", async function () {
+    it("should return 201 and user's id if successful", async function () {
       try {
         const result = await chai.request(app).post("/register").send(newUser);
         expect(result.status).to.equal(201);
@@ -33,8 +33,23 @@ describe("Auth route", function () {
       try {
         await chai.request(app).post("/register").send(existingUser);
       } catch (error) {
-        console.log("error:", error);
+        console.log(error);
         expect(error.status).to.equal(409);
+      }
+    });
+
+    it("should return 400 if there are missing credentials", async function () {
+      try {
+        await chai.request(app).post("/register").send({
+          username: "",
+          password: "",
+        });
+      } catch (error) {
+        console.log(error);
+        expect(error.status).to.equal(400);
+        expect(error.body)
+          .to.have.property("message")
+          .equal("Missing credentials");
       }
     });
   });

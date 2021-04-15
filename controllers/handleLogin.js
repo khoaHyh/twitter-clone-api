@@ -6,6 +6,7 @@ module.exports = async (req, res, next) => {
     if (!user) {
       return res.status(401).json({ success: false, message: info.message });
     }
+    // If there is a user object then the credentials match
     req.logIn(user, (err) => {
       if (err) return next(err);
       return res.status(200).json({
