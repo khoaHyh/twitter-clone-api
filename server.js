@@ -10,6 +10,7 @@ const sessionStore = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
 const connectDB = require("./db/db");
 const auth = require("./auth");
 const authRoutes = require("./routes/auth");
+const dmRoutes = require("./routes/directMessages");
 
 // Connect to MongoDB
 connectDB();
@@ -54,8 +55,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Middleware for auth routes
+// routes
 app.use("/", authRoutes);
+app.use("/home", dmRoutes);
 
 // Handle errors
 app.use((err, req, res, next) => {

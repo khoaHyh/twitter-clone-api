@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const utils = require("../utils/utils");
+const handleDm = require("../controllers/handleDm");
 
+// Create message route
 router.post(
-  "/home/direct_messages/events/new",
+  "/direct_messages/events/new",
   utils.ensureAuthenticated,
-  () => {}
+  handleDm.createMessage
 );
+
+module.exports = router;

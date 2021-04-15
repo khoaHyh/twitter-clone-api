@@ -2,11 +2,10 @@ const mongoose = require("mongoose");
 
 const directMessageSchema = new mongoose.Schema({
   type: String,
-  create_timestamp: String,
-  chat: [
+  conversation: [
     {
       message: String,
-      timestamp: String, // client would set timestamp in this API
+      created_timestamp: String,
       sender: String,
     },
   ],
