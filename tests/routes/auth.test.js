@@ -19,6 +19,7 @@ describe("Auth route", function () {
         .send(seed.existingUser);
       expect(result.status).to.equal(201);
 
+      // Register a second user for our DMs test
       const result2 = await chai
         .request(app)
         .post("/register")

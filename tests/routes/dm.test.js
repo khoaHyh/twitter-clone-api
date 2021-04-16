@@ -11,11 +11,6 @@ describe("Direct message route", function () {
   describe("POST /home/direct_messages/events/new", function () {
     const agent = chai.request.agent(app);
 
-    // Make a request to create message with agent
-    //async function createMessage(message) {
-    //  await agent.post("/home/direct_messages/events/new").send(message);
-    //}
-
     before(async function () {
       try {
         await DirectMessage.deleteMany({});
@@ -30,19 +25,30 @@ describe("Direct message route", function () {
         const recipientTextRes = await agent
           .post("/home/direct_messages/events/new")
           .send(seed.validRecipientTextMsg);
-        //expect(recipientTextRes).to.have.status(201);
         expect(recipientTextRes.status).to.equal(201);
-        //expect(recipientTextRes.body)
-        //  .to.have.property("type")
-        //  .equal("message_create");
-        //expect(recipientTextRes.body.message_create).to.have.property(
-        //  "message_data"
-        //);
+        expect(recipientTextRes.body)
+          .to.have.property("type")
+          .equal("message_create");
       } catch (error) {
         console.log(error);
       }
     });
 
-    //it("should return 404 and a message if recipient doesn't exist", async function () {});
+    it("should return 404 and a message if recipient doesn't exist", async function () {
+      try {
+        const invalidRecipientRes = await agent
+          .post("/home/direct_messages/events/new")
+          .send({
+            recipient: "thisUserDoesntExist",
+            text: "hello",
+          });
+        expect(invalidRecipientRes.status).to.equal(404);
+        expect(invalidRecipientRes.body)
+          .to.have.property("message")
+          .equal("Recipient not found.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
   });
 });

@@ -9,20 +9,14 @@ const createMessage = async (req, res, next) => {
   const senderId = req.user._id;
   const timestamp = Date.now();
 
-  // Find recipient id
-  const recipientData = await User.findOne(
-    { username: recipient },
-    (err, data) => {
-      if (err) return next(err);
-      recipientId = data._id;
-      console.log("recipient found!");
-    }
-  );
+  const recipientData = await User.findOne({ username: recipient });
 
   // Return error message if recipient does not exist
   if (!recipientData) {
     return res.status(404).json({ message: "Recipient not found." });
   }
+
+  recipientId = recipientData._id;
 
   // Return error message if text field is empty
   if (text.trim() === "") {
@@ -81,7 +75,7 @@ const createMessage = async (req, res, next) => {
     created_timestamp: timestamp,
     message_create: {
       recipient_name: recipientData.username,
-      recipient_id: recipientData._id,
+      recipient_id: recipientId,
       username: req.user.username,
       sender_id: senderId,
       // In the future we may return attachments, user_mentions, etc inside message_data
