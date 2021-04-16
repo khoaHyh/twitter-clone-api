@@ -90,12 +90,12 @@ const createMessage = async (req, res, next) => {
 const getAllMessages = async (req, res, next) => {
   const senderId = req.user._id;
 
-  // If the id submitted is valid attempt find the document associated
-  // Store the result of the document search in a variable
+  // Find all direct messages for this user sorted in reverse-chronological order
   let allMessages = await DirectMessage.find({
     senderId,
-  });
+  }).sort("-conversation.created_timestamp");
 
+  // Return an error message if there are no messages associated with the user
   if (!allMessages) {
     return res
       .status(404)
