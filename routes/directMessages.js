@@ -10,4 +10,10 @@ router.post(
   handleDm.createMessage
 );
 
+router.get(
+  "/direct_messages/events/list",
+  utils.ensureAuthenticated,
+  handleDm.getAllMessages
+);
+
 module.exports = router;

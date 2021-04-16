@@ -86,4 +86,25 @@ const createMessage = async (req, res, next) => {
   });
 };
 
-module.exports = { createMessage };
+// Gets all direct messages (both sent and received) between two users
+const getAllMessages = async (req, res, next) => {
+  const senderId = req.user._id;
+
+  // If the id submitted is valid attempt find the document associated
+  // Store the result of the document search in a variable
+  let allMessages = await DirectMessage.find({
+    senderId,
+  });
+
+  if (!allMessages) {
+    return res
+      .status(404)
+      .json({ message: "No message history with any recipients." });
+  }
+
+  res.status(200).json({
+    events: allMessages,
+  });
+};
+
+module.exports = { createMessage, getAllMessages };
