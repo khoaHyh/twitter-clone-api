@@ -50,5 +50,22 @@ describe("Direct message route", function () {
         console.log(error);
       }
     });
+
+    it("should return 400 and a message if text field is empty", async function () {
+      try {
+        const textEmptyRes = await agent
+          .post("/home/direct_messages/events/new")
+          .send({
+            recipient: "anotherUser",
+            text: "",
+          });
+        expect(textEmptyRes.status).to.equal(400);
+        expect(textEmptyRes.body)
+          .to.have.property("message")
+          .equal("Text field empty.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
   });
 });
