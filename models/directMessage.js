@@ -5,7 +5,7 @@ const directMessageSchema = new mongoose.Schema({
   senderId: { type: String, required: true },
   conversation: [
     {
-      created_timestamp: { type: String, required: true },
+      created_timestamp: { type: Date, default: Date.now() },
       text: { type: String, required: true },
     },
   ],
