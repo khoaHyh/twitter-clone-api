@@ -4,10 +4,31 @@ const { app } = require("../../server");
 const faker = require("faker");
 const chaiHttp = require("chai-http");
 const seed = require("../seed");
+const User = require("../../models/user");
 
 chai.use(chaiHttp);
 
 describe("Auth route", function () {
+  // Clear database and register our existingUser before auth tests
+  before(async function () {
+    await User.deleteMany({});
+    try {
+      const result = await chai
+        .request(app)
+        .post("/register")
+        .send(seed.existingUser);
+      expect(result.status).to.equal(201);
+
+      const result2 = await chai
+        .request(app)
+        .post("/register")
+        .send(seed.existingUser2);
+      expect(result2.status).to.equal(201);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   describe("POST /register", function () {
     it("should return 201 and user's id if successful", async function () {
       try {
@@ -71,11 +92,11 @@ describe("Auth route", function () {
     });
   });
 
+  // Utilize .request.agent from chai-http to authenticate user and perform requests as an authenticated user
+  const agent = chai.request.agent(app);
+
   describe("GET /home to test user session", function () {
     it("should return 200 if user session exists", async function () {
-      // Keep cookies from request and send them with the next using .request.agent from chai-http
-      const agent = chai.request.agent(app);
-
       try {
         await agent.post("/login").send(seed.existingUser);
         const authenticatedResponse = await agent.get("/home");
@@ -84,13 +105,19 @@ describe("Auth route", function () {
         console.log(error);
       }
     });
+
+    it("should return 401 if user session does not exist", async function () {
+      try {
+        const result = await chai.request(app).get("/home");
+        expect(result.status).to.equal(401);
+      } catch (error) {
+        console.log(error);
+      }
+    });
   });
 
   describe("GET /logout to test logout", function () {
     it("should return 200 and 'Unauthenticated' if user logs out", async function () {
-      // Utilize .request.agent from chai-http to authenticated user then subsequently unauthenticate them
-      const agent = chai.request.agent(app);
-
       try {
         await agent.post("/login").send(seed.existingUser);
         const authenticatedResponse = await agent.get("/logout");
@@ -105,7 +132,6 @@ describe("Auth route", function () {
     });
   });
   it("should return 'No user session to unauthenticate' if no user session exists to logout", async function () {
-    const agent = chai.request.agent(app);
     const noSessionResponse = await agent.get("/logout");
     expect(noSessionResponse).to.have.status(200);
     expect(noSessionResponse).to.have.property("body");

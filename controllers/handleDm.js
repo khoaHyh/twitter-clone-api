@@ -38,7 +38,8 @@ const createMessage = async (req, res, next) => {
   // Flag to let client know if the DM existed
   let idExisted = false;
   let newDm;
-  // Validate ids we receive from request
+
+  // Validate ids we receive from request (note: 'null' is a valid ObjectId for mongodb schemas)
   const validObjectId = mongoose.isValidObjectId(id);
 
   // If the id submitted is valid attempt find the document associated
