@@ -4,29 +4,21 @@ const utils = require("../utils/utils");
 const handleDm = require("../controllers/handleDm");
 
 // Create message route
-router.post(
-  "/direct_messages/events/new",
-  utils.ensureAuthenticated,
-  handleDm.createMessage
-);
+router.post("/events/new", utils.ensureAuthenticated, handleDm.createMessage);
 
 // Get all messages associated with the authenticated user
-router.get(
-  "/direct_messages/events/list",
-  utils.ensureAuthenticated,
-  handleDm.getAllMessages
-);
+router.get("/events/list", utils.ensureAuthenticated, handleDm.getAllMessages);
 
 // Get a single direct message
 router.get(
-  "/direct_messages/events/show",
+  "/events/show",
   utils.ensureAuthenticated,
   handleDm.showSingleMessage
 );
 
 // Delete a single direct message
 router.delete(
-  "/direct_messages/events/destroy",
+  "/events/destroy",
   utils.ensureAuthenticated,
   handleDm.deleteMessage
 );

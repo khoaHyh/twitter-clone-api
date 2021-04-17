@@ -1,6 +1,8 @@
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 const User = require("./models/user");
+const Filter = require("bad-words");
+const filter = new Filter();
 
 module.exports = (passport) => {
   // Convert object contents into a key
@@ -19,13 +21,25 @@ module.exports = (passport) => {
     "register",
     new LocalStrategy(async (username, password, done) => {
       try {
-        let user = await User.findOne({ username: username });
+        let trimUsername = username.trim();
+
+        if (filter.isProfane(username)) {
+          return done(null, false, {
+            message: "No allowed profanity within username.",
+          });
+        } else if (trimUsername.length >= 50) {
+          return done(null, false, {
+            message: "Username cannot be longer than 50 characters.",
+          });
+        }
+
+        let user = await User.findOne({ username: trimUsername });
 
         // If a user document exists then the username is taken
         if (user) {
-          console.log(`Username '${username}' is taken.`);
+          console.log(`Username '${trimUsername}' is taken.`);
           return done(null, false, {
-            message: `Username '${username}' is taken.`,
+            message: `Username '${trimUsername}' is taken.`,
           });
         }
 
@@ -33,9 +47,12 @@ module.exports = (passport) => {
         const hashedPassword = await bcrypt.hash(password, 12);
 
         // Insert user into the database
-        user = await User.create({ username, password: hashedPassword });
+        user = await User.create({
+          username: trimUsername,
+          password: hashedPassword,
+        });
         return done(null, user, {
-          message: `User ${username} successfully registered!`,
+          message: `User ${trimUsername} successfully registered!`,
         });
       } catch (error) {
         console.log("passport register error:", error);

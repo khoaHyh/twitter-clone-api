@@ -11,6 +11,7 @@ const connectDB = require("./db/db");
 const auth = require("./auth");
 const authRoutes = require("./routes/auth");
 const dmRoutes = require("./routes/directMessages");
+const tweetRoutes = require("./routes/tweet");
 
 // Connect to MongoDB
 connectDB();
@@ -57,7 +58,8 @@ app.use(passport.session());
 
 // Routes
 app.use("/", authRoutes);
-app.use("/home", dmRoutes);
+app.use("/home/direct_messages", dmRoutes);
+app.use("/home/tweets", tweetRoutes);
 
 // Handle errors
 app.use((err, req, res, next) => {
