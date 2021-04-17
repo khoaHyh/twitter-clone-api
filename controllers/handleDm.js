@@ -122,7 +122,10 @@ const showSingleMessage = async (req, res, next) => {
   const messageId = req.query.messageId;
 
   try {
-    if (!mongoose.isValidObjectId(messageId)) {
+    if (
+      !mongoose.isValidObjectId(messageId) ||
+      !mongoose.isValidObjectId(conversationId)
+    ) {
       return res.status(400).json({ message: "Invalid query params." });
     }
 
@@ -174,7 +177,10 @@ const deleteMessage = async (req, res, next) => {
   const messageId = req.query.messageId;
 
   try {
-    if (!mongoose.isValidObjectId(messageId)) {
+    if (
+      !mongoose.isValidObjectId(messageId) ||
+      !mongoose.isValidObjectId(conversationId)
+    ) {
       return res.status(400).json({ message: "Invalid query params." });
     }
 
