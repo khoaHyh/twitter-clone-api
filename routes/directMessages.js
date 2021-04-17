@@ -24,4 +24,11 @@ router.get(
   handleDm.showSingleMessage
 );
 
+// Delete a single direct message
+router.delete(
+  "/direct_messages/events/destroy",
+  utils.ensureAuthenticated,
+  handleDm.deleteMessage
+);
+
 module.exports = router;

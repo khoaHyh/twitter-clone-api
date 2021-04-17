@@ -134,14 +134,17 @@ const showSingleMessage = async (req, res, next) => {
       { senderId, _id: conversationId }
     );
 
+    // If no document was found then the conversation doesn't exist
     if (!document) {
       return res
         .status(404)
         .json({ message: "Direct message stream doesn't exist." });
     }
 
+    // Store the single message id in a variable
     message = document.conversation.id(messageId);
 
+    // If message doesn't exist return 404
     if (!message) {
       return res.status(404).json({ message: "Message not found." });
     }
@@ -164,4 +167,53 @@ const showSingleMessage = async (req, res, next) => {
   }
 };
 
-module.exports = { createMessage, getAllMessages, showSingleMessage };
+// Deletes a direct message from a conversation
+const deleteMessage = async (req, res, next) => {
+  const senderId = req.user._id;
+  const conversationId = req.query.id;
+  const messageId = req.query.messageId;
+
+  try {
+    if (!mongoose.isValidObjectId(messageId)) {
+      return res.status(400).json({ message: "Invalid query params." });
+    }
+
+    let message;
+
+    // Find the specific message by using document id and subdocument id
+    let document = await DirectMessage.findOne(
+      // We query by the authenticated user too to make sure that this message is associated with the user
+      { senderId, _id: conversationId }
+    );
+
+    if (!document) {
+      return res
+        .status(404)
+        .json({ message: "Direct message stream doesn't exist." });
+    }
+
+    // Store the single message id in a variable
+    message = document.conversation.id(messageId);
+
+    // If message doesn't exist return 404
+    if (!message) {
+      return res.status(404).json({ message: "Message not found." });
+    }
+
+    // Remove message then save document
+    message.remove();
+    await document.save();
+
+    return res.status(204).send();
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
+module.exports = {
+  createMessage,
+  getAllMessages,
+  showSingleMessage,
+  deleteMessage,
+};

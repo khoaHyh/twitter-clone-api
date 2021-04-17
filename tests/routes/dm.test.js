@@ -12,6 +12,7 @@ describe("Direct message route", function () {
   const anotherAgent = chai.request.agent(app);
   let existingDm, existingMessage;
 
+  // Delete all documents for the DirectMessage model and authenticate 2 users
   before(async function () {
     try {
       await DirectMessage.deleteMany({});

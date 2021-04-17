@@ -55,7 +55,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// routes
+// Routes
 app.use("/", authRoutes);
 app.use("/home", dmRoutes);
 
