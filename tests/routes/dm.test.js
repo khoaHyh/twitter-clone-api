@@ -10,6 +10,7 @@ chai.use(chaiHttp);
 describe("Direct message route", function () {
   const agent = chai.request.agent(app);
   const anotherAgent = chai.request.agent(app);
+  let existingMessage;
 
   before(async function () {
     try {
@@ -31,6 +32,8 @@ describe("Direct message route", function () {
         expect(recipientTextRes.body)
           .to.have.property("type")
           .equal("message_create");
+
+        //existingMessage = recipientTextRes.body.
       } catch (error) {
         console.log(error);
       }
@@ -93,6 +96,20 @@ describe("Direct message route", function () {
         expect(failGetMessagesRes.body)
           .to.have.property("message")
           .equal("No message history with any recipients.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
+
+  describe("GET /home/direct_messages/events/show", function () {
+    it("should return 200 and a response body if the message exists", async function () {
+      try {
+        const successShowMessage = await agent.get(
+          "/home/direct_messages/events/show/"
+        );
+        expect(successShowMessage.status).to.equal(200);
+        expect(successShowMessage.body).to.have.property("events");
       } catch (error) {
         console.log(error);
       }

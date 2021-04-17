@@ -41,7 +41,6 @@ const createMessage = async (req, res, next) => {
     if (validObjectId) {
       // Store the result of the document search in a variable
       newDm = await DirectMessage.findOne({ _id: id, recipientId, senderId });
-      console.log("newDm exists:", newDm);
     }
 
     // If the id is invalid or the document could not be found, create a new DM
@@ -52,22 +51,20 @@ const createMessage = async (req, res, next) => {
         conversation: messageData,
       });
       id = newDm._id;
-      console.log("create new dm id");
     } else {
       idExisted = true;
       // Push new message into existing DM
       newDm.conversation.push(messageData);
 
       // Save updates to document
-      newDm.save((err, data) => {
-        if (err) return next(err);
-        console.log("data saved!");
-      });
+      await newDm.save();
     }
+    // Gets the total number of messages within this direct message history
+    let totalMessages = newDm.conversation.length - 1;
+    let messageId = newDm.conversation[totalMessages];
 
     console.log("newDm:", newDm);
 
-    console.log("message created");
     res.status(201).json({
       type: "message_create",
       valid_object_id: validObjectId, // let client know if id sent was valid
@@ -81,6 +78,7 @@ const createMessage = async (req, res, next) => {
         sender_id: senderId,
         // In the future we may return attachments, user_mentions, etc inside message_data
         message_data: {
+          message_id: messageId,
           text,
         },
       },
@@ -108,7 +106,6 @@ const getAllMessages = async (req, res, next) => {
         .json({ message: "No message history with any recipients." });
     }
 
-    console.log(allMessages.length);
     res.status(200).json({
       events: allMessages,
     });
@@ -129,6 +126,7 @@ const showSingleMessage = async (req, res, next) => {
 
     // Find the specific message by using document id and subdocument id
     let document = await DirectMessage.findOne(
+      // We query by the authenticated user too to make sure that this message is associated with the user
       { senderId, _id: conversationId },
       (err, doc) => {
         if (err) return next(err);
