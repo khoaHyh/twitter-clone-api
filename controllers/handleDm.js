@@ -61,7 +61,7 @@ const createMessage = async (req, res, next) => {
     }
     // Gets the total number of messages within this direct message history
     let totalMessages = newDm.conversation.length - 1;
-    let messageId = newDm.conversation[totalMessages];
+    let messageId = newDm.conversation[totalMessages]._id;
 
     console.log("newDm:", newDm);
 
@@ -122,17 +122,25 @@ const showSingleMessage = async (req, res, next) => {
   const messageId = req.query.messageId;
 
   try {
+    if (!mongoose.isValidObjectId(messageId)) {
+      return res.status(400).json({ message: "Invalid query params." });
+    }
+
     let message;
 
     // Find the specific message by using document id and subdocument id
     let document = await DirectMessage.findOne(
       // We query by the authenticated user too to make sure that this message is associated with the user
-      { senderId, _id: conversationId },
-      (err, doc) => {
-        if (err) return next(err);
-        message = doc.conversation.id(messageId);
-      }
+      { senderId, _id: conversationId }
     );
+
+    if (!document) {
+      return res
+        .status(404)
+        .json({ message: "Direct message stream doesn't exist." });
+    }
+
+    message = document.conversation.id(messageId);
 
     if (!message) {
       return res.status(404).json({ message: "Message not found." });

@@ -10,7 +10,7 @@ chai.use(chaiHttp);
 describe("Direct message route", function () {
   const agent = chai.request.agent(app);
   const anotherAgent = chai.request.agent(app);
-  let existingMessage;
+  let existingDm, existingMessage;
 
   before(async function () {
     try {
@@ -33,7 +33,12 @@ describe("Direct message route", function () {
           .to.have.property("type")
           .equal("message_create");
 
-        //existingMessage = recipientTextRes.body.
+        // Save the newly created message's ids to user later in the showMessage test
+        existingDm = recipientTextRes.body.id;
+        console.log("existingDm:", existingDm);
+        existingMessage =
+          recipientTextRes.body.message_create.message_data.message_id;
+        console.log("existingMessage:", existingMessage);
       } catch (error) {
         console.log(error);
       }
@@ -106,10 +111,52 @@ describe("Direct message route", function () {
     it("should return 200 and a response body if the message exists", async function () {
       try {
         const successShowMessage = await agent.get(
-          "/home/direct_messages/events/show/"
+          `/home/direct_messages/events/show?id=${existingDm}&messageId=${existingMessage}`
         );
         expect(successShowMessage.status).to.equal(200);
-        expect(successShowMessage.body).to.have.property("events");
+        expect(successShowMessage.body).to.have.property("event");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 and a message if the query params are invalid", async function () {
+      try {
+        const failShowMessage = await agent.get(
+          "/home/direct_messages/events/show?id=this1id2wont3work&messageId=orthis1"
+        );
+        expect(failShowMessage.status).to.equal(400);
+        expect(failShowMessage.body)
+          .to.have.property("message")
+          .equal("Invalid query params.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 and a message if the direct message stream doesn't exist", async function () {
+      try {
+        const failShowMessage = await agent.get(
+          "/home/direct_messages/events/show?id=607a3d3f72aec51111111111&messageId=1111111112aec54d59c30c94"
+        );
+        expect(failShowMessage.status).to.equal(404);
+        expect(failShowMessage.body)
+          .to.have.property("message")
+          .equal("Direct message stream doesn't exist.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 and a message if the message doesn't exist", async function () {
+      try {
+        const failShowMessage = await agent.get(
+          `/home/direct_messages/events/show?id=${existingDm}&messageId=1111111112aec54d59c30c94`
+        );
+        expect(failShowMessage.status).to.equal(404);
+        expect(failShowMessage.body)
+          .to.have.property("message")
+          .equal("Message not found.");
       } catch (error) {
         console.log(error);
       }
