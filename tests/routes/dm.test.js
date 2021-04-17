@@ -8,18 +8,20 @@ const DirectMessage = require("../../models/directMessage");
 chai.use(chaiHttp);
 
 describe("Direct message route", function () {
+  const agent = chai.request.agent(app);
+  const anotherAgent = chai.request.agent(app);
+
+  before(async function () {
+    try {
+      await DirectMessage.deleteMany({});
+      await agent.post("/login").send(seed.existingUser);
+      await anotherAgent.post("/login").send(seed.ghostUser);
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   describe("POST /home/direct_messages/events/new", function () {
-    const agent = chai.request.agent(app);
-
-    before(async function () {
-      try {
-        await DirectMessage.deleteMany({});
-        await agent.post("/login").send(seed.existingUser);
-      } catch (error) {
-        console.log(error);
-      }
-    });
-
     it("should return 201 and response body if a message is created", async function () {
       try {
         const recipientTextRes = await agent
@@ -63,6 +65,34 @@ describe("Direct message route", function () {
         expect(textEmptyRes.body)
           .to.have.property("message")
           .equal("Text field empty.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
+
+  describe("GET /home/direct_messages/events/list", function () {
+    it("should return 200 and a response body if there are messages associated with the user", async function () {
+      try {
+        const successGetMessagesRes = await agent.get(
+          "/home/direct_messages/events/list"
+        );
+        expect(successGetMessagesRes.status).to.equal(200);
+        expect(successGetMessagesRes.body).to.have.property("events");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 and a message if there are no messages associated with the user", async function () {
+      try {
+        const failGetMessagesRes = await anotherAgent.get(
+          "/home/direct_messages/events/list"
+        );
+        expect(failGetMessagesRes.status).to.equal(404);
+        expect(failGetMessagesRes.body)
+          .to.have.property("message")
+          .equal("No message history with any recipients.");
       } catch (error) {
         console.log(error);
       }

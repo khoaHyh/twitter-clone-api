@@ -96,12 +96,13 @@ const getAllMessages = async (req, res, next) => {
   }).sort("-conversation.created_timestamp");
 
   // Return an error message if there are no messages associated with the user
-  if (!allMessages) {
+  if (allMessages.length < 1) {
     return res
       .status(404)
       .json({ message: "No message history with any recipients." });
   }
 
+  console.log(allMessages.length);
   res.status(200).json({
     events: allMessages,
   });

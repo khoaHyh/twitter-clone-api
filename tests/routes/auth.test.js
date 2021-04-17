@@ -11,20 +11,16 @@ chai.use(chaiHttp);
 describe("Auth route", function () {
   // Clear database and register our existingUser before auth tests
   before(async function () {
-    await User.deleteMany({});
     try {
-      const result = await chai
-        .request(app)
-        .post("/register")
-        .send(seed.existingUser);
-      expect(result.status).to.equal(201);
+      await User.deleteMany({});
+      const userArray = [seed.anotherUser, seed.ghostUser];
 
-      // Register a second user for our DMs test
-      const result2 = await chai
-        .request(app)
-        .post("/register")
-        .send(seed.existingUser2);
-      expect(result2.status).to.equal(201);
+      // Loops through our userArray and makes async/await calls to register each account
+      (async function registerUsers() {
+        for (let i = 0; i < userArray.length; i++) {
+          await chai.request(app).post("/register").send(userArray[i]);
+        }
+      })();
     } catch (error) {
       console.log(error);
     }

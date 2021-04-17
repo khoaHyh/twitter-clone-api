@@ -12,8 +12,14 @@ const existingUser = {
 };
 
 // Second existing account to send DMs to
-const existingUser2 = {
+const anotherUser = {
   username: "anotherUser",
+  password: "test123",
+};
+
+// User account that has no messages associated
+const ghostUser = {
+  username: "ghost",
   password: "test123",
 };
 
@@ -26,6 +32,7 @@ const validRecipientTextMsg = {
 module.exports = {
   newUser,
   existingUser,
-  existingUser2,
+  anotherUser,
+  ghostUser,
   validRecipientTextMsg,
 };
