@@ -10,10 +10,18 @@ router.post(
   handleDm.createMessage
 );
 
+// Get all messages associated with the authenticated user
 router.get(
   "/direct_messages/events/list",
   utils.ensureAuthenticated,
   handleDm.getAllMessages
+);
+
+// Get a single direct message
+router.get(
+  "/direct_messages/events/show",
+  utils.ensureAuthenticated,
+  handleDm.showSingleMessage
 );
 
 module.exports = router;
