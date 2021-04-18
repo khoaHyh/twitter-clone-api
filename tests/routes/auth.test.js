@@ -13,7 +13,7 @@ describe("Auth route", function () {
   before(async function () {
     try {
       await User.deleteMany({});
-      const userArray = [seed.anotherUser, seed.ghostUser];
+      const userArray = [seed.existingUser, seed.anotherUser, seed.ghostUser];
 
       // Loops through our userArray and makes async/await calls to register each account
       (async function registerUsers() {
@@ -42,25 +42,43 @@ describe("Auth route", function () {
 
     it("should return 409 if the user already exists", async function () {
       try {
-        await chai.request(app).post("/register").send(seed.existingUser);
+        const result = await chai
+          .request(app)
+          .post("/register")
+          .send(seed.existingUser);
+        expect(result.status).to.equal(409);
       } catch (error) {
         console.log(error);
-        expect(error.status).to.equal(409);
       }
     });
 
-    it("should return 400 if there are missing credentials", async function () {
+    it("should return 422 if there are missing credentials", async function () {
       try {
-        await chai.request(app).post("/register").send({
+        const result = await chai.request(app).post("/register").send({
           username: "",
           password: "",
         });
-      } catch (error) {
-        console.log(error);
-        expect(error.status).to.equal(400);
-        expect(error.body)
+        expect(result.status).to.equal(422);
+        expect(result.body)
           .to.have.property("message")
           .equal("Missing credentials");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 400 if the username contains profanity", async function () {
+      try {
+        const result = await chai.request(app).post("/register").send({
+          username: "badword",
+          password: "password",
+        });
+        expect(result.status).to.equal(400);
+        expect(result.body)
+          .to.have.property("message")
+          .equal("Username must not contain profanity.");
+      } catch (error) {
+        console.log(error);
       }
     });
   });

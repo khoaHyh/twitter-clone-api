@@ -68,7 +68,7 @@ describe("Direct message route", function () {
             recipient: "anotherUser",
             text: "",
           });
-        expect(textEmptyRes.status).to.equal(400);
+        expect(textEmptyRes.status).to.equal(422);
         expect(textEmptyRes.body)
           .to.have.property("message")
           .equal("Text field empty.");

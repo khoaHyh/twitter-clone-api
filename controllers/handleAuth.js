@@ -6,6 +6,9 @@ const register = async (req, res, next) => {
     if (err) return next(err);
     // If user attempts to register with an empty username and/or password
     if (info.message === "Missing credentials") {
+      return res.status(422).json({ success: false, message: info.message });
+    }
+    if (info.message === "Username must not contain profanity.") {
       return res.status(400).json({ success: false, message: info.message });
     }
     // If no user object is returned, the user already exists

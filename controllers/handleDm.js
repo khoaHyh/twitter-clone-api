@@ -21,7 +21,7 @@ const createMessage = async (req, res, next) => {
 
     // Return error message if text field is empty
     if (text.trim() === "") {
-      return res.status(400).json({ message: "Text field empty." });
+      return res.status(422).json({ message: "Text field empty." });
     }
 
     // Key-value data for conversation array in document

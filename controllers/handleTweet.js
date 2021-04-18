@@ -17,6 +17,18 @@ const lookupTweets = async (req, res, next) => {
   res.status(200).json(allTweets);
 };
 
+// Returns a single tweet
+const showTweet = async (req, res, next) => {
+  const tweetId = req.params.id;
+  const validObjectId = mongoose.isValidObjectId(tweetId);
+
+  if (!tweetId) {
+  }
+
+  console.log(tweetId);
+  res.status(200).json({ message: tweetId });
+};
+
 // Create a tweet
 const createTweet = async (req, res, next) => {
   const username = req.user.username;
@@ -42,4 +54,4 @@ const createTweet = async (req, res, next) => {
   res.status(201).json(newTweetResponse);
 };
 
-module.exports = { lookupTweets, createTweet };
+module.exports = { lookupTweets, showTweet, createTweet };
