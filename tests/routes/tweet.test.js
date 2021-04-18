@@ -28,6 +28,13 @@ describe("Tweets route", function () {
           .send({ text: "I am hungry!" });
         expect(createTweetRes.status).to.equal(201);
         expect(createTweetRes.body).to.have.property("text");
+
+        //// Save the newly created message's ids to user later in the showMessage test
+        //existingDm = recipientTextRes.body.id;
+        //console.log("existingDm:", existingDm);
+        //existingMessage =
+        //  recipientTextRes.body.message_create.message_data.message_id;
+        //console.log("existingMessage:", existingMessage);
       } catch (error) {
         console.log(error);
       }
@@ -67,24 +74,28 @@ describe("Tweets route", function () {
     }
   });
 
-  //describe("GET /home/tweets/lookup", function () {
-  //  it("should return 200 and an array if there are tweets to retrieve from database", async function () {
-  //    try {
-  //      const recipientTextRes = await agent
-  //        .post("/home/tweets/lookup")
-  //        .send(seed.validRecipientTextMsg);
-  //      expect(recipientTextRes.status).to.equal(200);
-  //      expect(recipientTextRes.body).to.be.an("array");
+  describe("GET /home/tweets/lookup", function () {
+    it("should return 200 and an array if there are tweets to retrieve from database", async function () {
+      try {
+        const successLookupRes = await agent.get("/home/tweets/lookup");
+        expect(successLookupRes.status).to.equal(200);
+        expect(successLookupRes.body).to.be.an("array");
+      } catch (error) {
+        console.log(error);
+      }
+    });
 
-  //      //// Save the newly created message's ids to user later in the showMessage test
-  //      //existingDm = recipientTextRes.body.id;
-  //      //console.log("existingDm:", existingDm);
-  //      //existingMessage =
-  //      //  recipientTextRes.body.message_create.message_data.message_id;
-  //      //console.log("existingMessage:", existingMessage);
-  //    } catch (error) {
-  //      console.log(error);
-  //    }
-  //  });
-  //});
+    it("should return 404 and a message if there are no tweets to retrieve from database", async function () {
+      try {
+        await Tweet.deleteMany({});
+        const failLookupRes = await agent.get("/home/tweets/lookup");
+        expect(failLookupRes.status).to.equal(404);
+        expect(failLookupRes.body)
+          .to.have.property("message")
+          .equal("No tweets found.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
 });
