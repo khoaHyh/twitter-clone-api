@@ -98,4 +98,20 @@ describe("Tweets route", function () {
       }
     });
   });
+
+  describe("GET /home/tweets/show/:id", function () {
+    it("should return 200 if tweet is successfully retrieved", async function () {
+      try {
+        const newTweet = await Tweet.create({
+          authorId: test3,
+          text: "Retrieve this tweet.",
+        });
+        const successShowTweetRes = await agent.get(
+          `/home/tweets/show/${newTweet._id}`
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
 });

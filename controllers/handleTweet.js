@@ -22,11 +22,30 @@ const showTweet = async (req, res, next) => {
   const tweetId = req.params.id;
   const validObjectId = mongoose.isValidObjectId(tweetId);
 
-  if (!tweetId) {
+  // Return 400 if tweetId is invalid
+  if (!tweetId || !validObjectId) {
+    return res.status(400).json({ message: "Invalid tweet id." });
   }
 
+  const singleTweet = await Tweet.findById(tweetId);
+
+  // Return 404 if Tweet cannot be found
+  if (!singleTweet) {
+    return res.status(404).json({ message: "Tweet not found." });
+  }
+
+  const singleTweetRes = {
+    id: singleTweet._id,
+    authorId: singleTweet.authorId,
+    created_timestamp: singleTweet.created_timestamp,
+    text: singleTweet.text,
+    likes: singleTweet.likes,
+    retweet: singleTweet.retweet,
+    retweet_count: singleTweet.retweet_count,
+  };
+
   console.log(tweetId);
-  res.status(200).json({ message: tweetId });
+  res.status(200).json(singleTweetRes);
 };
 
 // Create a tweet
