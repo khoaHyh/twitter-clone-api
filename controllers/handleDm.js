@@ -63,8 +63,6 @@ const createMessage = async (req, res, next) => {
     let totalMessages = newDm.conversation.length - 1;
     let messageId = newDm.conversation[totalMessages]._id;
 
-    console.log("newDm:", newDm);
-
     res.status(201).json({
       type: "message_create",
       valid_object_id: validObjectId, // let client know if id sent was valid

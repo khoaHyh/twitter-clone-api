@@ -36,10 +36,8 @@ describe("Direct message route", function () {
 
         // Save the newly created message's ids to user later in the showMessage test
         existingDm = recipientTextRes.body.id;
-        console.log("existingDm:", existingDm);
         existingMessage =
           recipientTextRes.body.message_create.message_data.message_id;
-        console.log("existingMessage:", existingMessage);
       } catch (error) {
         console.log(error);
       }

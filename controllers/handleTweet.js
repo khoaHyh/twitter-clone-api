@@ -22,14 +22,17 @@ const createTweet = async (req, res, next) => {
   const username = req.user.username;
   let { text } = req.body;
 
+  // Check if the text field is empty or >= 140 characters in length
   if (!text || text.trim() === "" || text.length >= 140) {
     return res.status(422).json({
-      message: "Text is required and cannot exceed 140 characters in length.",
+      message:
+        "Text is required and cannot be or exceed 140 characters in length.",
     });
   }
 
   const newTweet = await Tweet.create({ authorId: username, text });
 
+  // Construct response object and filter out profanity in tweet content
   const newTweetResponse = {
     created_at: newTweet.created_at,
     id: newTweet._id,
