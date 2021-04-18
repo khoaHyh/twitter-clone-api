@@ -4,17 +4,20 @@ const { app } = require("../../server");
 const chaiHttp = require("chai-http");
 const seed = require("../seed");
 const Tweet = require("../../models/tweet");
+const User = require("../../models/user");
 
 chai.use(chaiHttp);
 
 describe("Tweets route", function () {
   const agent = chai.request.agent(app);
+  let user;
 
   // Delete all documents for the Tweet model and authenticate one user
   before(async function () {
     try {
       await Tweet.deleteMany({});
       await agent.post("/login").send(seed.ghostUser);
+      user = await User.findOne({ username: "test3" });
     } catch (error) {
       console.log(error);
     }
@@ -28,13 +31,6 @@ describe("Tweets route", function () {
           .send({ text: "I am hungry!" });
         expect(createTweetRes.status).to.equal(201);
         expect(createTweetRes.body).to.have.property("text");
-
-        //// Save the newly created message's ids to user later in the showMessage test
-        //existingDm = recipientTextRes.body.id;
-        //console.log("existingDm:", existingDm);
-        //existingMessage =
-        //  recipientTextRes.body.message_create.message_data.message_id;
-        //console.log("existingMessage:", existingMessage);
       } catch (error) {
         console.log(error);
       }
@@ -103,12 +99,42 @@ describe("Tweets route", function () {
     it("should return 200 if tweet is successfully retrieved", async function () {
       try {
         const newTweet = await Tweet.create({
-          authorId: test3,
+          authorId: user._id,
           text: "Retrieve this tweet.",
         });
+
         const successShowTweetRes = await agent.get(
           `/home/tweets/show/${newTweet._id}`
         );
+        expect(successShowTweetRes.status).to.equal(200);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 if tweet cannot be found ", async function () {
+      try {
+        const notFoundShowRes = await agent.get(
+          `/home/tweets/show/607c80f55e305e14254f3b85`
+        );
+        expect(notFoundShowRes.status).to.equal(404);
+        expect(notFoundShowRes.body)
+          .to.have.property("message")
+          .equal("Tweet not found.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 400 if tweet id is invalid", async function () {
+      try {
+        const notFoundShowRes = await agent.get(
+          `/home/tweets/show/607c80f55e305e14`
+        );
+        expect(notFoundShowRes.status).to.equal(400);
+        expect(notFoundShowRes.body)
+          .to.have.property("message")
+          .equal("Invalid tweet id.");
       } catch (error) {
         console.log(error);
       }

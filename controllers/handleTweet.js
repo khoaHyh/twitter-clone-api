@@ -44,13 +44,13 @@ const showTweet = async (req, res, next) => {
     retweet_count: singleTweet.retweet_count,
   };
 
-  console.log(tweetId);
+  //console.log(tweetId);
   res.status(200).json(singleTweetRes);
 };
 
 // Create a tweet
 const createTweet = async (req, res, next) => {
-  const username = req.user.username;
+  const userId = req.user._id;
   let { text } = req.body;
 
   // Check if the text field is empty or >= 140 characters in length
@@ -61,7 +61,7 @@ const createTweet = async (req, res, next) => {
     });
   }
 
-  const newTweet = await Tweet.create({ authorId: username, text });
+  const newTweet = await Tweet.create({ authorId: userId, text });
 
   // Construct response object and filter out profanity in tweet content
   const newTweetResponse = {
