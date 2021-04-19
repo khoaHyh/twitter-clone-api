@@ -139,4 +139,41 @@ const updateTweet = async (req, res, next) => {
   }
 };
 
-module.exports = { lookupTweets, showTweet, createTweet, updateTweet };
+// Delete tweet
+const deleteTweet = async (req, res, next) => {
+  const authorId = req.user._id;
+  const tweetId = req.query.tweetId;
+
+  try {
+    if (!mongoose.isValidObjectId(tweetId)) {
+      return res.status(400).json({ message: "Invalid query params." });
+    }
+
+    //const tweet = await Tweet.findOneAndDelete(
+    //  { _id: tweetId, authorId },
+    //  (err, doc) => {
+    //    if (err) return next(err);
+    //  }
+    //);
+    const tweetToDelete = await Tweet.findOne({ _id: tweetId, authorId });
+
+    if (!tweetToDelete) {
+      return res.status(404).json({ message: "No tweet found to delete." });
+    }
+
+    tweetToDelete.deleteOne();
+
+    return res.status(204).send();
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
+module.exports = {
+  lookupTweets,
+  showTweet,
+  createTweet,
+  updateTweet,
+  deleteTweet,
+};

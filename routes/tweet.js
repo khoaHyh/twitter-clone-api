@@ -15,4 +15,7 @@ router.post("/create", utils.ensureAuthenticated, handleTweet.createTweet);
 // Update tweet route
 router.put("/update", utils.ensureAuthenticated, handleTweet.updateTweet);
 
+// Delete tweet route
+router.delete("/destroy", utils.ensureAuthenticated, handleTweet.deleteTweet);
+
 module.exports = router;
