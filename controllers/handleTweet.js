@@ -120,7 +120,9 @@ const updateTweet = async (req, res, next) => {
     );
 
     if (!tweetToUpdate) {
-      return res.status(404).json({ message: "Tweet couldn't be updated. " });
+      return res
+        .status(404)
+        .json({ message: "No tweet found. Update failed." });
     }
 
     const updatedTweetResponse = {

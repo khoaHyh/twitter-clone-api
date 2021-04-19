@@ -12,6 +12,8 @@ describe("Tweets route", function () {
   const agent = chai.request.agent(app);
   const oneFourtyString =
     "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
+  const invalidTextField =
+    "Text is required and cannot be or exceed 140 characters in length.";
   let user;
 
   // Delete all documents for the Tweet model and authenticate one user
@@ -49,9 +51,7 @@ describe("Tweets route", function () {
         expect(emptyTextRes.status).to.equal(422);
         expect(emptyTextRes.body)
           .to.have.property("message")
-          .equal(
-            "Text is required and cannot be or exceed 140 characters in length."
-          );
+          .equal(invalidTextField);
       } catch (error) {
         console.log(error);
       }
@@ -66,9 +66,7 @@ describe("Tweets route", function () {
       expect(tooLongRes.status).to.equal(422);
       expect(tooLongRes.body)
         .to.have.property("message")
-        .equal(
-          "Text is required and cannot be or exceed 140 characters in length."
-        );
+        .equal(invalidTextField);
     } catch (error) {
       console.log(error);
     }
@@ -175,9 +173,52 @@ describe("Tweets route", function () {
         expect(tooLongUpdateRes.status).to.equal(422);
         expect(tooLongUpdateRes.body)
           .to.have.property("message")
-          .equal(
-            "Text is required and cannot be or exceed 140 characters in length."
-          );
+          .equal(invalidTextField);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 422 if text field is empty", async function () {
+      try {
+        const emptyTestUpdateRes = await agent.put("/home/tweets/update").send({
+          tweetId: user._id,
+          text: "",
+        });
+        expect(emptyTestUpdateRes.status).to.equal(422);
+        expect(emptyTestUpdateRes.body)
+          .to.have.property("message")
+          .equal(invalidTextField);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 400 if tweet id is invalid", async function () {
+      try {
+        const invalidIdUpdateRes = await agent.put("/home/tweets/update").send({
+          tweetId: "invalidtweetid",
+          text: "Perfectly fine tweet.",
+        });
+        expect(invalidIdUpdateRes.status).to.equal(400);
+        expect(invalidIdUpdateRes.body)
+          .to.have.property("message")
+          .equal("Invalid tweet id.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 if tweet could not be found to update", async function () {
+      try {
+        const notFoundUpdateRes = await agent.put("/home/tweets/update").send({
+          tweetId: user._id,
+          text: "Perfectly fine tweet.",
+        });
+        expect(notFoundUpdateRes.status).to.equal(404);
+        expect(notFoundUpdateRes.body)
+          .to.have.property("message")
+          .equal("No tweet found. Update failed.");
       } catch (error) {
         console.log(error);
       }

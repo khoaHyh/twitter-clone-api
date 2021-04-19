@@ -147,11 +147,15 @@ describe("Auth route", function () {
     });
   });
   it("should return 'No user session to unauthenticate' if no user session exists to logout", async function () {
-    const noSessionResponse = await agent.get("/logout");
-    expect(noSessionResponse).to.have.status(200);
-    expect(noSessionResponse).to.have.property("body");
-    expect(noSessionResponse.body)
-      .to.have.property("message")
-      .equal("No user session to unauthenticate.");
+    try {
+      const noSessionResponse = await agent.get("/logout");
+      expect(noSessionResponse).to.have.status(200);
+      expect(noSessionResponse).to.have.property("body");
+      expect(noSessionResponse.body)
+        .to.have.property("message")
+        .equal("No user session to unauthenticate.");
+    } catch (error) {
+      console.log(error);
+    }
   });
 });
