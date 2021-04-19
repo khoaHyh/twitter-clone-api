@@ -14,7 +14,7 @@ describe("Tweets route", function () {
     "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
   const invalidTextField =
     "Text is required and cannot be or exceed 140 characters in length.";
-  let user;
+  let user, anotherUser;
 
   // Delete all documents for the Tweet model and authenticate one user
   before(async function () {
@@ -25,6 +25,7 @@ describe("Tweets route", function () {
 
       // Search for user's information for their id and store in variable to use later
       user = await User.findOne({ username: seed.existingUser.username });
+      anotherUser = await User.findOne({ username: seed.anotherUser.username });
     } catch (error) {
       console.log(error);
     }
@@ -219,6 +220,69 @@ describe("Tweets route", function () {
         expect(notFoundUpdateRes.body)
           .to.have.property("message")
           .equal("No tweet found. Update failed.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
+
+  describe("DELETE /home/tweets/destroy", function () {
+    it("should return 204 if tweet is successfully deleted", async function () {
+      try {
+        const tweetToDelete = await Tweet.create({
+          authorId: user._id,
+          text: "Delete this tweet.",
+        });
+
+        const successDeleteRes = await agent.delete(
+          `/home/tweets/destroy?tweetId=${tweetToDelete._id}`
+        );
+        expect(successDeleteRes.status).to.equal(204);
+
+        // Check if the tweet was deleted
+        const checkTweetDeletedRes = await Tweet.findById(tweetToDelete._id);
+        expect(checkTweetDeletedRes).equal(null);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 400 if tweet id is invalid", async function () {
+      try {
+        const invalidDeleteRes = await agent.get(
+          `/home/tweets/show/607c80f55e305e14`
+        );
+        expect(invalidDeleteRes.status).to.equal(400);
+        expect(invalidDeleteRes.body)
+          .to.have.property("message")
+          .equal("Invalid tweet id.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 if the user is not the author of the tweet to delete", async function () {
+      try {
+        const tweetToDelete = await Tweet.create({
+          authorId: anotherUser._id,
+          text: "Delete this tweet.",
+        });
+
+        const notAuthorDeleteRes = await agent.delete(
+          `/home/tweets/destroy?tweetId=${tweetToDelete._id}`
+        );
+        expect(notAuthorDeleteRes.status).to.equal(404);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 404 if there is no tweet to delete", async function () {
+      try {
+        const noTweetDeleteRes = await agent.delete(
+          `/home/tweets/destroy?=${user._id}`
+        );
+        expect(noTweetDeleteRes.status).to.equal(404);
       } catch (error) {
         console.log(error);
       }

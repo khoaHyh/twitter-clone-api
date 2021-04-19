@@ -149,16 +149,12 @@ const deleteTweet = async (req, res, next) => {
       return res.status(400).json({ message: "Invalid query params." });
     }
 
-    //const tweet = await Tweet.findOneAndDelete(
-    //  { _id: tweetId, authorId },
-    //  (err, doc) => {
-    //    if (err) return next(err);
-    //  }
-    //);
     const tweetToDelete = await Tweet.findOne({ _id: tweetId, authorId });
 
     if (!tweetToDelete) {
-      return res.status(404).json({ message: "No tweet found to delete." });
+      return res.status(404).json({
+        message: "You are not the author or no tweet found to delete.",
+      });
     }
 
     tweetToDelete.deleteOne();

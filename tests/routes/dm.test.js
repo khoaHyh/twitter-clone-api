@@ -210,7 +210,7 @@ describe("Direct message route", function () {
         expect(failShowMessage.status).to.equal(404);
         expect(failShowMessage.body)
           .to.have.property("message")
-          .equal("Message not found.");
+          .equal("You are not the author or message not found.");
       } catch (error) {
         console.log(error);
       }

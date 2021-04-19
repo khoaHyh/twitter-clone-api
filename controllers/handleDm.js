@@ -201,7 +201,9 @@ const deleteMessage = async (req, res, next) => {
 
     // If message doesn't exist return 404
     if (!message) {
-      return res.status(404).json({ message: "Message not found." });
+      return res
+        .status(404)
+        .json({ message: "You are not the author or message not found." });
     }
 
     // Remove message then save document
