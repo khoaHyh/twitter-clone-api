@@ -6,7 +6,7 @@ const directMessageSchema = new mongoose.Schema({
   conversation: [
     {
       created_timestamp: { type: Date, default: Date.now() },
-      text: { type: String, required: true },
+      tweetId: { type: String, required: true },
     },
   ],
 });

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-//const User = require("../models/user");
 const Tweet = require("../models/tweet");
 const Filter = require("bad-words");
 const filter = new Filter();
