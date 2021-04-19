@@ -10,14 +10,19 @@ chai.use(chaiHttp);
 
 describe("Tweets route", function () {
   const agent = chai.request.agent(app);
+  const oneFourtyString =
+    "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
   let user;
 
   // Delete all documents for the Tweet model and authenticate one user
   before(async function () {
     try {
+      // Delete all tweets and login our existing user
       await Tweet.deleteMany({});
-      await agent.post("/login").send(seed.ghostUser);
-      user = await User.findOne({ username: "test3" });
+      await agent.post("/login").send(seed.existingUser);
+
+      // Search for user's information for their id and store in variable to use later
+      user = await User.findOne({ username: seed.existingUser.username });
     } catch (error) {
       console.log(error);
     }
@@ -38,11 +43,11 @@ describe("Tweets route", function () {
 
     it("should return 422 if text field is empty", async function () {
       try {
-        const invalidTweetRes = await agent.post("/home/tweets/create").send({
+        const emptyTextRes = await agent.post("/home/tweets/create").send({
           text: "",
         });
-        expect(invalidTweetRes.status).to.equal(422);
-        expect(invalidTweetRes.body)
+        expect(emptyTextRes.status).to.equal(422);
+        expect(emptyTextRes.body)
           .to.have.property("message")
           .equal(
             "Text is required and cannot be or exceed 140 characters in length."
@@ -55,12 +60,11 @@ describe("Tweets route", function () {
 
   it("should return 422 if text >= 140 characters in length", async function () {
     try {
-      const invalidTweetRes = await agent.post("/home/tweets/create").send({
-        text:
-          "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2",
+      const tooLongRes = await agent.post("/home/tweets/create").send({
+        text: oneFourtyString,
       });
-      expect(invalidTweetRes.status).to.equal(422);
-      expect(invalidTweetRes.body)
+      expect(tooLongRes.status).to.equal(422);
+      expect(tooLongRes.body)
         .to.have.property("message")
         .equal(
           "Text is required and cannot be or exceed 140 characters in length."
@@ -128,13 +132,52 @@ describe("Tweets route", function () {
 
     it("should return 400 if tweet id is invalid", async function () {
       try {
-        const notFoundShowRes = await agent.get(
+        const invalidShowRes = await agent.get(
           `/home/tweets/show/607c80f55e305e14`
         );
-        expect(notFoundShowRes.status).to.equal(400);
-        expect(notFoundShowRes.body)
+        expect(invalidShowRes.status).to.equal(400);
+        expect(invalidShowRes.body)
           .to.have.property("message")
           .equal("Invalid tweet id.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+  });
+
+  describe("PUT /home/tweets/update", function () {
+    it("should return 200 if tweet is successfully updated", async function () {
+      try {
+        const text = "Just updated this tweet!";
+
+        const tweetToUpdate = await Tweet.create({
+          authorId: user._id,
+          text: "Update this tweet.",
+        });
+
+        const successUpdateTweet = await agent.put("/home/tweets/update").send({
+          tweetId: tweetToUpdate._id,
+          text,
+        });
+        expect(successUpdateTweet.status).to.equal(200);
+        expect(successUpdateTweet.body).to.have.property("text").equal(text);
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 422 if text >= 140 characters in length", async function () {
+      try {
+        const tooLongUpdateRes = await agent.put("/home/tweets/update").send({
+          tweetId: user._id,
+          text: oneFourtyString,
+        });
+        expect(tooLongUpdateRes.status).to.equal(422);
+        expect(tooLongUpdateRes.body)
+          .to.have.property("message")
+          .equal(
+            "Text is required and cannot be or exceed 140 characters in length."
+          );
       } catch (error) {
         console.log(error);
       }

@@ -12,4 +12,7 @@ router.get("/show/:id", utils.ensureAuthenticated, handleTweet.showTweet);
 // Create tweet route
 router.post("/create", utils.ensureAuthenticated, handleTweet.createTweet);
 
+// Update tweet route
+router.put("/update", utils.ensureAuthenticated, handleTweet.updateTweet);
+
 module.exports = router;
