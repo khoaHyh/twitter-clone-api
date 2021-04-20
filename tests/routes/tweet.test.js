@@ -10,22 +10,24 @@ chai.use(chaiHttp);
 
 describe("Tweets route", function () {
   const agent = chai.request.agent(app);
-  const oneFourtyString =
+  const string140Char =
     "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
-  const invalidTextField =
+  const invalidTextFieldMsg =
     "Text is required and cannot be or exceed 140 characters in length.";
-  let user, anotherUser;
+  let existingUser, anotherUser;
 
-  // Delete all documents for the Tweet model and authenticate one user
   before(async function () {
     try {
-      // Delete all tweets and login our existing user
+      // Delete all tweets and login our existing existingUser
       await Tweet.deleteMany({});
       await agent.post("/login").send(seed.existingUser);
 
-      // Search for user's information for their id and store in variable to use later
-      user = await User.findOne({ username: seed.existingUser.username });
-      anotherUser = await User.findOne({ username: seed.anotherUser.username });
+      existingUser = await User.findOne({
+        existingUsername: seed.existingUser.existingUsername,
+      });
+      anotherUser = await User.findOne({
+        existingUsername: seed.anotherUser.existingUsername,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -34,11 +36,12 @@ describe("Tweets route", function () {
   describe("POST /home/tweets/create", function () {
     it("should return 201 and response body if tweet is successfully created", async function () {
       try {
-        const createTweetRes = await agent
+        let text = "I am hungry!";
+        const successCreateRes = await agent
           .post("/home/tweets/create")
-          .send({ text: "I am hungry!" });
-        expect(createTweetRes.status).to.equal(201);
-        expect(createTweetRes.body).to.have.property("text");
+          .send({ text });
+        expect(successCreateRes.status).to.equal(201);
+        expect(successCreateRes.body).to.have.property("text").equal(text);
       } catch (error) {
         console.log(error);
       }
@@ -52,7 +55,7 @@ describe("Tweets route", function () {
         expect(emptyTextRes.status).to.equal(422);
         expect(emptyTextRes.body)
           .to.have.property("message")
-          .equal(invalidTextField);
+          .equal(invalidTextFieldMsg);
       } catch (error) {
         console.log(error);
       }
@@ -62,12 +65,12 @@ describe("Tweets route", function () {
   it("should return 422 if text >= 140 characters in length", async function () {
     try {
       const tooLongRes = await agent.post("/home/tweets/create").send({
-        text: oneFourtyString,
+        text: string140Char,
       });
       expect(tooLongRes.status).to.equal(422);
       expect(tooLongRes.body)
         .to.have.property("message")
-        .equal(invalidTextField);
+        .equal(invalidTextFieldMsg);
     } catch (error) {
       console.log(error);
     }
@@ -102,14 +105,14 @@ describe("Tweets route", function () {
     it("should return 200 if tweet is successfully retrieved", async function () {
       try {
         const newTweet = await Tweet.create({
-          authorId: user._id,
+          authorId: existingUser._id,
           text: "Retrieve this tweet.",
         });
 
-        const successShowTweetRes = await agent.get(
+        const successShowRes = await agent.get(
           `/home/tweets/show/${newTweet._id}`
         );
-        expect(successShowTweetRes.status).to.equal(200);
+        expect(successShowRes.status).to.equal(200);
       } catch (error) {
         console.log(error);
       }
@@ -150,16 +153,16 @@ describe("Tweets route", function () {
         const text = "Just updated this tweet!";
 
         const tweetToUpdate = await Tweet.create({
-          authorId: user._id,
+          authorId: existingUser._id,
           text: "Update this tweet.",
         });
 
-        const successUpdateTweet = await agent.put("/home/tweets/update").send({
+        const successUpdateRes = await agent.put("/home/tweets/update").send({
           tweetId: tweetToUpdate._id,
           text,
         });
-        expect(successUpdateTweet.status).to.equal(200);
-        expect(successUpdateTweet.body).to.have.property("text").equal(text);
+        expect(successUpdateRes.status).to.equal(200);
+        expect(successUpdateRes.body).to.have.property("text").equal(text);
       } catch (error) {
         console.log(error);
       }
@@ -168,13 +171,13 @@ describe("Tweets route", function () {
     it("should return 422 if text >= 140 characters in length", async function () {
       try {
         const tooLongUpdateRes = await agent.put("/home/tweets/update").send({
-          tweetId: user._id,
-          text: oneFourtyString,
+          tweetId: existingUser._id,
+          text: string140Char,
         });
         expect(tooLongUpdateRes.status).to.equal(422);
         expect(tooLongUpdateRes.body)
           .to.have.property("message")
-          .equal(invalidTextField);
+          .equal(invalidTextFieldMsg);
       } catch (error) {
         console.log(error);
       }
@@ -182,14 +185,14 @@ describe("Tweets route", function () {
 
     it("should return 422 if text field is empty", async function () {
       try {
-        const emptyTestUpdateRes = await agent.put("/home/tweets/update").send({
-          tweetId: user._id,
+        const emptyTextUpdateRes = await agent.put("/home/tweets/update").send({
+          tweetId: existingUser._id,
           text: "",
         });
-        expect(emptyTestUpdateRes.status).to.equal(422);
-        expect(emptyTestUpdateRes.body)
+        expect(emptyTextUpdateRes.status).to.equal(422);
+        expect(emptyTextUpdateRes.body)
           .to.have.property("message")
-          .equal(invalidTextField);
+          .equal(invalidTextFieldMsg);
       } catch (error) {
         console.log(error);
       }
@@ -213,7 +216,7 @@ describe("Tweets route", function () {
     it("should return 404 if tweet could not be found to update", async function () {
       try {
         const notFoundUpdateRes = await agent.put("/home/tweets/update").send({
-          tweetId: user._id,
+          tweetId: existingUser._id,
           text: "Perfectly fine tweet.",
         });
         expect(notFoundUpdateRes.status).to.equal(404);
@@ -230,7 +233,7 @@ describe("Tweets route", function () {
     it("should return 204 if tweet is successfully deleted", async function () {
       try {
         const tweetToDelete = await Tweet.create({
-          authorId: user._id,
+          authorId: existingUser._id,
           text: "Delete this tweet.",
         });
 
@@ -249,11 +252,11 @@ describe("Tweets route", function () {
 
     it("should return 400 if tweet id is invalid", async function () {
       try {
-        const invalidDeleteRes = await agent.get(
+        const invalidIdDeleteRes = await agent.get(
           `/home/tweets/show/607c80f55e305e14`
         );
-        expect(invalidDeleteRes.status).to.equal(400);
-        expect(invalidDeleteRes.body)
+        expect(invalidIdDeleteRes.status).to.equal(400);
+        expect(invalidIdDeleteRes.body)
           .to.have.property("message")
           .equal("Invalid tweet id.");
       } catch (error) {
@@ -261,7 +264,7 @@ describe("Tweets route", function () {
       }
     });
 
-    it("should return 404 if the user is not the author of the tweet to delete", async function () {
+    it("should return 404 if the existingUser is not the author of the tweet to delete", async function () {
       try {
         const tweetToDelete = await Tweet.create({
           authorId: anotherUser._id,
@@ -280,7 +283,7 @@ describe("Tweets route", function () {
     it("should return 404 if there is no tweet to delete", async function () {
       try {
         const noTweetDeleteRes = await agent.delete(
-          `/home/tweets/destroy?=${user._id}`
+          `/home/tweets/destroy?=${existingUser._id}`
         );
         expect(noTweetDeleteRes.status).to.equal(404);
       } catch (error) {
