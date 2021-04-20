@@ -162,11 +162,11 @@ describe("Direct message route", function () {
     });
   });
 
-  describe("DELETE /home/direct_messages/events/destroy", function () {
+  describe("DELETE /home/direct_messages/events/delete", function () {
     it("should return 204 if the message is successfully deleted", async function () {
       try {
         const successDeleteRes = await agent.delete(
-          `/home/direct_messages/events/destroy?id=${existingDm}&messageId=${existingMessage}`
+          `/home/direct_messages/events/delete?id=${existingDm}&messageId=${existingMessage}`
         );
         expect(successDeleteRes.status).to.equal(204);
       } catch (error) {
@@ -177,7 +177,7 @@ describe("Direct message route", function () {
     it("should return 400 and a message if the query params are invalid", async function () {
       try {
         const invalidDeleteRes = await agent.delete(
-          "/home/direct_messages/events/destroy?id=this1id2wont3work&messageId=orthis1"
+          "/home/direct_messages/events/delete?id=this1id2wont3work&messageId=orthis1"
         );
         expect(invalidDeleteRes.status).to.equal(400);
         expect(invalidDeleteRes.body)
@@ -191,7 +191,7 @@ describe("Direct message route", function () {
     it("should return 404 and a message if the direct message stream doesn't exist", async function () {
       try {
         const convoNotFoundRes = await agent.delete(
-          "/home/direct_messages/events/destroy?id=607b5ca29148b48a36a8a3b2&messageId=1111111112aec54d59c30c94"
+          "/home/direct_messages/events/delete?id=607b5ca29148b48a36a8a3b2&messageId=1111111112aec54d59c30c94"
         );
         expect(convoNotFoundRes.status).to.equal(404);
         expect(convoNotFoundRes.body)
@@ -205,7 +205,7 @@ describe("Direct message route", function () {
     it("should return 404 and a message if message doesn't exist", async function () {
       try {
         const failShowRes = await agent.delete(
-          `/home/direct_messages/events/destroy?id=${existingDm}&messageId=1111111112aec54d59c30c94`
+          `/home/direct_messages/events/delete?id=${existingDm}&messageId=1111111112aec54d59c30c94`
         );
         expect(failShowRes.status).to.equal(404);
         expect(failShowRes.body)

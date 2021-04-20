@@ -2,7 +2,6 @@ const User = require("../models/user");
 const DirectMessage = require("../models/directMessage");
 const mongoose = require("mongoose");
 
-// Publishes a new mesage_create event which sends a message to a specificied user
 const createMessage = async (req, res, next) => {
   let { id, recipient, text } = req.body;
   let recipientId;
@@ -12,14 +11,13 @@ const createMessage = async (req, res, next) => {
   try {
     const recipientData = await User.findOne({ username: recipient });
 
-    // Return error message if recipient does not exist
     if (!recipientData) {
       return res.status(404).json({ message: "Recipient not found." });
     }
 
     recipientId = recipientData._id;
 
-    // Return error message if text field is empty
+    // If the text field trimmed down is empty return 422 and a message
     if (text.trim() === "") {
       return res.status(422).json({ message: "Text field empty." });
     }
@@ -30,16 +28,13 @@ const createMessage = async (req, res, next) => {
       text,
     };
 
-    // Flag to let client know if the DM existed
-    let idExisted = false;
+    let idExisted = false; // Flag to let client know if the DM existed
     let newDm;
 
     // Validate ids we receive from request (note: 'null' is a valid ObjectId for mongodb schemas)
     const validObjectId = mongoose.isValidObjectId(id);
 
-    // If the id submitted is valid attempt find the document associated
     if (validObjectId) {
-      // Store the result of the document search in a variable
       newDm = await DirectMessage.findOne({ _id: id, recipientId, senderId });
     }
 
@@ -53,13 +48,10 @@ const createMessage = async (req, res, next) => {
       id = newDm._id;
     } else {
       idExisted = true;
-      // Push new message into existing DM
-      newDm.conversation.push(messageData);
+      newDm.conversation.push(messageData); // push message into conversation array
 
-      // Save updates to document
       await newDm.save();
     }
-    // Gets the total number of messages within this direct message history
     let totalMessages = newDm.conversation.length - 1;
     let messageId = newDm.conversation[totalMessages]._id;
 
@@ -87,7 +79,7 @@ const createMessage = async (req, res, next) => {
   }
 };
 
-// Gets all direct messages (both sent and received) between two users
+// Retrieves all dms associated with the user
 const getAllMessages = async (req, res, next) => {
   const senderId = req.user._id;
 
@@ -97,7 +89,6 @@ const getAllMessages = async (req, res, next) => {
       senderId,
     }).sort("-conversation.created_timestamp");
 
-    // Return an error message if there are no messages associated with the user
     if (!allMessages.length) {
       return res
         .status(404)
@@ -135,17 +126,14 @@ const showSingleMessage = async (req, res, next) => {
       { senderId, _id: conversationId }
     );
 
-    // If no document was found then the conversation doesn't exist
     if (!document) {
       return res
         .status(404)
         .json({ message: "Direct message stream doesn't exist." });
     }
 
-    // Store the single message id in a variable
     message = document.conversation.id(messageId);
 
-    // If message doesn't exist return 404
     if (!message) {
       return res.status(404).json({ message: "Message not found." });
     }
@@ -168,13 +156,13 @@ const showSingleMessage = async (req, res, next) => {
   }
 };
 
-// Deletes a direct message from a conversation
 const deleteMessage = async (req, res, next) => {
   const senderId = req.user._id;
   const conversationId = req.query.id;
   const messageId = req.query.messageId;
 
   try {
+    // Check if message id or conversation id are valid ObjectIds
     if (
       !mongoose.isValidObjectId(messageId) ||
       !mongoose.isValidObjectId(conversationId)
@@ -196,10 +184,8 @@ const deleteMessage = async (req, res, next) => {
         .json({ message: "Direct message stream doesn't exist." });
     }
 
-    // Store the single message id in a variable
     message = document.conversation.id(messageId);
 
-    // If message doesn't exist return 404
     if (!message) {
       return res
         .status(404)

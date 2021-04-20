@@ -23,6 +23,7 @@ module.exports = (passport) => {
     "register",
     new LocalStrategy(async (username, password, done) => {
       try {
+        // Remove whitespaces in username
         let trimUsername = username.trim();
 
         if (filter.isProfane(username)) {
@@ -31,7 +32,7 @@ module.exports = (passport) => {
           });
         } else if (trimUsername.length >= 50) {
           return done(null, false, {
-            message: "Username cannot be longer than 50 characters.",
+            message: "Username cannot be 50 characters or longer.",
           });
         }
 
@@ -39,7 +40,6 @@ module.exports = (passport) => {
 
         // If a user document exists then the username is taken
         if (user) {
-          console.log(`Username '${trimUsername}' is taken.`);
           return done(null, false, {
             message: `Username '${trimUsername}' is taken.`,
           });
@@ -53,6 +53,7 @@ module.exports = (passport) => {
           username: trimUsername,
           password: hashedPassword,
         });
+
         return done(null, user, {
           message: `User ${trimUsername} successfully registered!`,
         });
@@ -69,9 +70,8 @@ module.exports = (passport) => {
     new LocalStrategy(async (username, password, done) => {
       try {
         const user = await User.findOne({ username: username });
-        console.log("User " + username + " attempted to log in.");
+        console.log(`User ${username} attempted to log in`);
 
-        // If no user is found with that username
         if (!user) {
           console.log(`User ${username} doesn't exist.`);
           return done(null, false, {
@@ -81,7 +81,6 @@ module.exports = (passport) => {
 
         const validated = await bcrypt.compare(password, user.password);
 
-        // If the password provided is incorrect
         if (!validated) {
           console.log("Invalid password");
           return done(null, false, {

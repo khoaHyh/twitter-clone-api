@@ -18,7 +18,7 @@ router.get(
 
 // Delete a single direct message
 router.delete(
-  "/events/destroy",
+  "/events/delete",
   utils.ensureAuthenticated,
   handleDm.deleteMessage
 );

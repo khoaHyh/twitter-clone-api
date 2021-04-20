@@ -229,7 +229,7 @@ describe("Tweets route", function () {
     });
   });
 
-  describe("DELETE /home/tweets/destroy", function () {
+  describe("DELETE /home/tweets/delete", function () {
     it("should return 204 if tweet is successfully deleted", async function () {
       try {
         const tweetToDelete = await Tweet.create({
@@ -238,7 +238,7 @@ describe("Tweets route", function () {
         });
 
         const successDeleteRes = await agent.delete(
-          `/home/tweets/destroy?tweetId=${tweetToDelete._id}`
+          `/home/tweets/delete?tweetId=${tweetToDelete._id}`
         );
         expect(successDeleteRes.status).to.equal(204);
 
@@ -272,7 +272,7 @@ describe("Tweets route", function () {
         });
 
         const notAuthorDeleteRes = await agent.delete(
-          `/home/tweets/destroy?tweetId=${tweetToDelete._id}`
+          `/home/tweets/delete?tweetId=${tweetToDelete._id}`
         );
         expect(notAuthorDeleteRes.status).to.equal(404);
       } catch (error) {
@@ -283,7 +283,7 @@ describe("Tweets route", function () {
     it("should return 404 if there is no tweet to delete", async function () {
       try {
         const noTweetDeleteRes = await agent.delete(
-          `/home/tweets/destroy?=${existingUser._id}`
+          `/home/tweets/delete?=${existingUser._id}`
         );
         expect(noTweetDeleteRes.status).to.equal(404);
       } catch (error) {

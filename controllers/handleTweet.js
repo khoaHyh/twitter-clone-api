@@ -35,18 +35,27 @@ const showTweet = async (req, res, next) => {
       return res.status(404).json({ message: "Tweet not found." });
     }
 
-    const singleTweetRes = {
-      id: singleTweet._id,
-      authorId: singleTweet.authorId,
-      created_timestamp: singleTweet.created_timestamp,
-      updated_at: singleTweet.updated_at,
-      text: singleTweet.text,
-      likes: singleTweet.likes,
-      retweet: singleTweet.retweet,
-      retweet_count: singleTweet.retweet_count,
-    };
+    const {
+      _id,
+      authorId,
+      created_timestamp,
+      updated_at,
+      text,
+      likes,
+      retweet,
+      retweet_count,
+    } = singleTweet;
 
-    res.status(200).json(singleTweetRes);
+    res.status(200).json({
+      id: _id,
+      authorId,
+      created_timestamp,
+      updated_at,
+      text,
+      likes,
+      retweet,
+      retweet_count,
+    });
   } catch (error) {
     console.log(error);
     return next(error);
@@ -58,6 +67,7 @@ const createTweet = async (req, res, next) => {
   let { text } = req.body;
 
   try {
+    // Check for empty text and if it exceeds length
     if (!text || text.trim() === "" || text.length >= 140) {
       return res.status(422).json({
         message:
@@ -95,10 +105,13 @@ const updateTweet = async (req, res, next) => {
 
     const validObjectId = mongoose.isValidObjectId(tweetId);
 
+    // Check for invalid tweet ids
+    // Check for !tweetId because null is a valid ObjectId
     if (!validObjectId || !tweetId) {
       return res.status(400).json({ message: "Invalid tweet id." });
     }
 
+    // Find document and update text and updated_at
     const tweetToUpdate = await Tweet.findOneAndUpdate(
       { authorId, _id: tweetId },
       { updated_at: Date.now(), text },
@@ -114,9 +127,11 @@ const updateTweet = async (req, res, next) => {
         .json({ message: "No tweet found. Update failed." });
     }
 
+    const { created_at, updated_at } = tweetToUpdate;
+
     const updatedTweetResponse = {
-      created_at: tweetToUpdate.created_at,
-      updated_at: tweetToUpdate.updated_at,
+      created_at,
+      updated_at,
       updated_at: tweetId,
       text: filter.clean(tweetToUpdate.text),
     };
@@ -135,6 +150,8 @@ const deleteTweet = async (req, res, next) => {
   try {
     const validObjectId = mongoose.isValidObjectId(tweetId);
 
+    // Check for invalid tweet ids
+    // Check for !tweetId because null is a valid ObjectId
     if (!validObjectId || !tweetId) {
       return res.status(400).json({ message: "Invalid query params." });
     }
