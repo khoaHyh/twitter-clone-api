@@ -23,10 +23,10 @@ describe("Tweets route", function () {
       await agent.post("/login").send(seed.existingUser);
 
       existingUser = await User.findOne({
-        existingUsername: seed.existingUser.existingUsername,
+        username: seed.existingUser.username,
       });
       anotherUser = await User.findOne({
-        existingUsername: seed.anotherUser.existingUsername,
+        username: seed.anotherUser.username,
       });
     } catch (error) {
       console.log(error);
@@ -283,7 +283,7 @@ describe("Tweets route", function () {
     it("should return 404 if there is no tweet to delete", async function () {
       try {
         const noTweetDeleteRes = await agent.delete(
-          `/home/tweets/delete?=${existingUser._id}`
+          `/home/tweets/delete?tweetId=${existingUser._id}`
         );
         expect(noTweetDeleteRes.status).to.equal(404);
       } catch (error) {

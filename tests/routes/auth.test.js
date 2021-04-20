@@ -70,6 +70,24 @@ describe("Auth route", function () {
       }
     });
 
+    it("should return 422 if username length >= 50 characters ", async function () {
+      try {
+        const longUsernameRegisterRes = await chai
+          .request(app)
+          .post("/register")
+          .send({
+            username: "324uw0g98u24qorjdslgj92qu3r98uf98sug829u4q98upsdgu",
+            password: "password",
+          });
+        expect(longUsernameRegisterRes.status).to.equal(422);
+        expect(longUsernameRegisterRes.body)
+          .to.have.property("message")
+          .equal("Username cannot be 50 characters or longer.");
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
     it("should return 400 if the username contains profanity", async function () {
       try {
         const profanityRegisterRes = await chai
@@ -109,7 +127,7 @@ describe("Auth route", function () {
         const credInvalidLoginRes = await chai
           .request(app)
           .post("/login")
-          .send(seed.newUser);
+          .send(seed.doesNotExistUser);
         expect(credInvalidLoginRes.status).to.be.equal(401);
       } catch (error) {
         console.log(error);

@@ -5,6 +5,11 @@ const newUser = {
   username: faker.internet.userName(),
   password: faker.internet.password(),
 };
+// This user will never exist in the database
+const doesNotExistUser = {
+  username: faker.internet.userName(),
+  password: faker.internet.password(),
+};
 // Use existing account credentials for test cases
 const existingUser = {
   username: "test3",
