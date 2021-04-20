@@ -9,7 +9,7 @@ const User = require("../../models/user");
 chai.use(chaiHttp);
 
 describe("Auth route", function () {
-  // Clear database and register our existingUser before auth tests
+  // Clear database and register seed users for test cases
   before(async function () {
     try {
       await User.deleteMany({});
@@ -29,12 +29,12 @@ describe("Auth route", function () {
   describe("POST /register", function () {
     it("should return 201 and user's id if successful", async function () {
       try {
-        const result = await chai
+        const successRegisterRes = await chai
           .request(app)
           .post("/register")
           .send(seed.newUser);
-        expect(result.status).to.equal(201);
-        expect(result.body).to.have.property("userId");
+        expect(successRegisterRes.status).to.equal(201);
+        expect(successRegisterRes.body).to.have.property("userId");
       } catch (error) {
         console.log(error);
       }
@@ -42,11 +42,11 @@ describe("Auth route", function () {
 
     it("should return 409 if the user already exists", async function () {
       try {
-        const result = await chai
+        const existsRegisterRes = await chai
           .request(app)
           .post("/register")
           .send(seed.existingUser);
-        expect(result.status).to.equal(409);
+        expect(existsRegisterRes.status).to.equal(409);
       } catch (error) {
         console.log(error);
       }
@@ -54,12 +54,15 @@ describe("Auth route", function () {
 
     it("should return 422 if there are missing credentials", async function () {
       try {
-        const result = await chai.request(app).post("/register").send({
-          username: "",
-          password: "",
-        });
-        expect(result.status).to.equal(422);
-        expect(result.body)
+        const credMissRegisterRes = await chai
+          .request(app)
+          .post("/register")
+          .send({
+            username: "",
+            password: "",
+          });
+        expect(credMissRegisterRes.status).to.equal(422);
+        expect(credMissRegisterRes.body)
           .to.have.property("message")
           .equal("Missing credentials");
       } catch (error) {
@@ -69,12 +72,15 @@ describe("Auth route", function () {
 
     it("should return 400 if the username contains profanity", async function () {
       try {
-        const result = await chai.request(app).post("/register").send({
-          username: "badword",
-          password: "password",
-        });
-        expect(result.status).to.equal(400);
-        expect(result.body)
+        const profanityRegisterRes = await chai
+          .request(app)
+          .post("/register")
+          .send({
+            username: "badword",
+            password: "password",
+          });
+        expect(profanityRegisterRes.status).to.equal(400);
+        expect(profanityRegisterRes.body)
           .to.have.property("message")
           .equal("Username must not contain profanity.");
       } catch (error) {
@@ -86,13 +92,13 @@ describe("Auth route", function () {
   describe("POST /login", function () {
     it("should return 200 and user's id if user successfully logs in", async function () {
       try {
-        const result = await chai
+        const successLoginRes = await chai
           .request(app)
           .post("/login")
           .send(seed.existingUser);
 
-        expect(result.status).to.equal(200);
-        expect(result.body).to.have.property("userId");
+        expect(successLoginRes.status).to.equal(200);
+        expect(successLoginRes.body).to.have.property("userId");
       } catch (error) {
         console.log(error);
       }
@@ -100,9 +106,13 @@ describe("Auth route", function () {
 
     it("should return 401 if user does not exist or credentials are invalid", async function () {
       try {
-        await chai.request(app).post("/login").send(seed.newUser);
+        const credInvalidLoginRes = await chai
+          .request(app)
+          .post("/login")
+          .send(seed.newUser);
+        expect(credInvalidLoginRes.status).to.be.equal(401);
       } catch (error) {
-        expect(error.status).to.be.equal(401);
+        console.log(error);
       }
     });
   });
@@ -123,8 +133,8 @@ describe("Auth route", function () {
 
     it("should return 401 if user session does not exist", async function () {
       try {
-        const result = await chai.request(app).get("/home");
-        expect(result.status).to.equal(401);
+        const unauthenticatedResponse = await chai.request(app).get("/home");
+        expect(unauthenticatedResponse.status).to.equal(401);
       } catch (error) {
         console.log(error);
       }

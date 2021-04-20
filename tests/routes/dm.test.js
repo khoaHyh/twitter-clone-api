@@ -9,7 +9,7 @@ chai.use(chaiHttp);
 
 describe("Direct message route", function () {
   const agent = chai.request.agent(app);
-  const anotherAgent = chai.request.agent(app);
+  const ghostAgent = chai.request.agent(app);
   let existingDm, existingMessage;
 
   // Delete all documents for the DirectMessage model and authenticate 2 users
@@ -17,7 +17,7 @@ describe("Direct message route", function () {
     try {
       await DirectMessage.deleteMany({});
       await agent.post("/login").send(seed.existingUser);
-      await anotherAgent.post("/login").send(seed.ghostUser);
+      await ghostAgent.post("/login").send(seed.ghostUser);
     } catch (error) {
       console.log(error);
     }
@@ -26,18 +26,18 @@ describe("Direct message route", function () {
   describe("POST /home/direct_messages/events/new", function () {
     it("should return 201 and response body if a message is created", async function () {
       try {
-        const recipientTextRes = await agent
+        const successCreateRes = await agent
           .post("/home/direct_messages/events/new")
           .send(seed.validRecipientTextMsg);
-        expect(recipientTextRes.status).to.equal(201);
-        expect(recipientTextRes.body)
+        expect(successCreateRes.status).to.equal(201);
+        expect(successCreateRes.body)
           .to.have.property("type")
           .equal("message_create");
 
         // Save the newly created message's ids to user later in the showMessage test
-        existingDm = recipientTextRes.body.id;
+        existingDm = successCreateRes.body.id;
         existingMessage =
-          recipientTextRes.body.message_create.message_data.message_id;
+          successCreateRes.body.message_create.message_data.message_id;
       } catch (error) {
         console.log(error);
       }
@@ -93,7 +93,7 @@ describe("Direct message route", function () {
 
     it("should return 404 and a message if there are no messages associated with the user", async function () {
       try {
-        const failGetMessagesRes = await anotherAgent.get(
+        const failGetMessagesRes = await ghostAgent.get(
           "/home/direct_messages/events/list"
         );
         expect(failGetMessagesRes.status).to.equal(404);
@@ -109,11 +109,11 @@ describe("Direct message route", function () {
   describe("GET /home/direct_messages/events/show", function () {
     it("should return 200 and a response body if the message exists", async function () {
       try {
-        const successShowMessage = await agent.get(
+        const successShowRes = await agent.get(
           `/home/direct_messages/events/show?id=${existingDm}&messageId=${existingMessage}`
         );
-        expect(successShowMessage.status).to.equal(200);
-        expect(successShowMessage.body).to.have.property("event");
+        expect(successShowRes.status).to.equal(200);
+        expect(successShowRes.body).to.have.property("event");
       } catch (error) {
         console.log(error);
       }
@@ -121,11 +121,11 @@ describe("Direct message route", function () {
 
     it("should return 400 and a message if the query params are invalid", async function () {
       try {
-        const invalidShowMessage = await agent.get(
+        const invalidShowRes = await agent.get(
           "/home/direct_messages/events/show?id=this1id2wont3work&messageId=orthis1"
         );
-        expect(invalidShowMessage.status).to.equal(400);
-        expect(invalidShowMessage.body)
+        expect(invalidShowRes.status).to.equal(400);
+        expect(invalidShowRes.body)
           .to.have.property("message")
           .equal("Invalid query params.");
       } catch (error) {
@@ -135,11 +135,11 @@ describe("Direct message route", function () {
 
     it("should return 404 and a message if the direct message stream doesn't exist", async function () {
       try {
-        const convoNotFound = await agent.get(
+        const convoNotFoundRes = await agent.get(
           "/home/direct_messages/events/show?id=607a3d3f72aec51111111111&messageId=1111111112aec54d59c30c94"
         );
-        expect(convoNotFound.status).to.equal(404);
-        expect(convoNotFound.body)
+        expect(convoNotFoundRes.status).to.equal(404);
+        expect(convoNotFoundRes.body)
           .to.have.property("message")
           .equal("Direct message stream doesn't exist.");
       } catch (error) {
@@ -149,11 +149,11 @@ describe("Direct message route", function () {
 
     it("should return 404 and a message if the message doesn't exist", async function () {
       try {
-        const failShowMessage = await agent.get(
+        const failShowMessageRes = await agent.get(
           `/home/direct_messages/events/show?id=${existingDm}&messageId=1111111112aec54d59c30c94`
         );
-        expect(failShowMessage.status).to.equal(404);
-        expect(failShowMessage.body)
+        expect(failShowMessageRes.status).to.equal(404);
+        expect(failShowMessageRes.body)
           .to.have.property("message")
           .equal("Message not found.");
       } catch (error) {
@@ -165,10 +165,10 @@ describe("Direct message route", function () {
   describe("DELETE /home/direct_messages/events/destroy", function () {
     it("should return 204 if the message is successfully deleted", async function () {
       try {
-        const successDeleteMessage = await agent.delete(
+        const successDeleteRes = await agent.delete(
           `/home/direct_messages/events/destroy?id=${existingDm}&messageId=${existingMessage}`
         );
-        expect(successDeleteMessage.status).to.equal(204);
+        expect(successDeleteRes.status).to.equal(204);
       } catch (error) {
         console.log(error);
       }
@@ -176,11 +176,11 @@ describe("Direct message route", function () {
 
     it("should return 400 and a message if the query params are invalid", async function () {
       try {
-        const invalidDeleteMessage = await agent.delete(
+        const invalidDeleteRes = await agent.delete(
           "/home/direct_messages/events/destroy?id=this1id2wont3work&messageId=orthis1"
         );
-        expect(invalidDeleteMessage.status).to.equal(400);
-        expect(invalidDeleteMessage.body)
+        expect(invalidDeleteRes.status).to.equal(400);
+        expect(invalidDeleteRes.body)
           .to.have.property("message")
           .equal("Invalid query params.");
       } catch (error) {
@@ -190,11 +190,11 @@ describe("Direct message route", function () {
 
     it("should return 404 and a message if the direct message stream doesn't exist", async function () {
       try {
-        const convoNotFound = await agent.delete(
+        const convoNotFoundRes = await agent.delete(
           "/home/direct_messages/events/destroy?id=607b5ca29148b48a36a8a3b2&messageId=1111111112aec54d59c30c94"
         );
-        expect(convoNotFound.status).to.equal(404);
-        expect(convoNotFound.body)
+        expect(convoNotFoundRes.status).to.equal(404);
+        expect(convoNotFoundRes.body)
           .to.have.property("message")
           .equal("Direct message stream doesn't exist.");
       } catch (error) {
@@ -204,11 +204,11 @@ describe("Direct message route", function () {
 
     it("should return 404 and a message if message doesn't exist", async function () {
       try {
-        const failShowMessage = await agent.delete(
+        const failShowRes = await agent.delete(
           `/home/direct_messages/events/destroy?id=${existingDm}&messageId=1111111112aec54d59c30c94`
         );
-        expect(failShowMessage.status).to.equal(404);
-        expect(failShowMessage.body)
+        expect(failShowRes.status).to.equal(404);
+        expect(failShowRes.body)
           .to.have.property("message")
           .equal("You are not the author or message not found.");
       } catch (error) {

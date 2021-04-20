@@ -3,13 +3,11 @@ const Tweet = require("../models/tweet");
 const Filter = require("bad-words");
 const filter = new Filter();
 
-// Get all tweets from database
 const lookupTweets = async (req, res, next) => {
   try {
     // Retrieve all tweets in database and sort in reverse chronological order
     const allTweets = await Tweet.find().sort({ created_timestamp: -1 });
 
-    // If there are no tweets in the database, return 404
     if (allTweets.length < 1) {
       return res.status(404).json({ message: "No tweets found." });
     }
@@ -21,21 +19,18 @@ const lookupTweets = async (req, res, next) => {
   }
 };
 
-// Returns a single tweet
 const showTweet = async (req, res, next) => {
   const tweetId = req.params.id;
 
   try {
     const validObjectId = mongoose.isValidObjectId(tweetId);
 
-    // Check if the supplied tweet id is a valid ObjectId
     if (!validObjectId || !tweetId) {
       return res.status(400).json({ message: "Invalid tweet id." });
     }
 
     const singleTweet = await Tweet.findById(tweetId);
 
-    // Return 404 if Tweet cannot be found
     if (!singleTweet) {
       return res.status(404).json({ message: "Tweet not found." });
     }
@@ -58,13 +53,11 @@ const showTweet = async (req, res, next) => {
   }
 };
 
-// Create a tweet
 const createTweet = async (req, res, next) => {
   const userId = req.user._id;
   let { text } = req.body;
 
   try {
-    // Check if the text field is empty or >= 140 characters in length
     if (!text || text.trim() === "" || text.length >= 140) {
       return res.status(422).json({
         message:
@@ -88,13 +81,11 @@ const createTweet = async (req, res, next) => {
   }
 };
 
-// Update tweet
 const updateTweet = async (req, res, next) => {
   const authorId = req.user._id;
   let { text, tweetId } = req.body;
 
   try {
-    // Check if the text field is empty or >= 140 characters in length
     if (!text || text.trim() === "" || text.length >= 140) {
       return res.status(422).json({
         message:
@@ -104,7 +95,6 @@ const updateTweet = async (req, res, next) => {
 
     const validObjectId = mongoose.isValidObjectId(tweetId);
 
-    // Check if the supplied tweet id is a valid ObjectId
     if (!validObjectId || !tweetId) {
       return res.status(400).json({ message: "Invalid tweet id." });
     }
@@ -138,13 +128,14 @@ const updateTweet = async (req, res, next) => {
   }
 };
 
-// Delete tweet
 const deleteTweet = async (req, res, next) => {
   const authorId = req.user._id;
   const tweetId = req.query.tweetId;
 
   try {
-    if (!mongoose.isValidObjectId(tweetId)) {
+    const validObjectId = mongoose.isValidObjectId(tweetId);
+
+    if (!validObjectId || !tweetId) {
       return res.status(400).json({ message: "Invalid query params." });
     }
 
