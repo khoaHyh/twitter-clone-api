@@ -88,7 +88,7 @@ describe("Auth route", function () {
       }
     });
 
-    it("should return 400 if the username contains profanity", async function () {
+    it("should return 422 if the username contains profanity", async function () {
       try {
         const profanityRegisterRes = await chai
           .request(app)
@@ -97,7 +97,7 @@ describe("Auth route", function () {
             username: "badword",
             password: "password",
           });
-        expect(profanityRegisterRes.status).to.equal(400);
+        expect(profanityRegisterRes.status).to.equal(422);
         expect(profanityRegisterRes.body)
           .to.have.property("message")
           .equal("Username must not contain profanity.");
