@@ -5,6 +5,6 @@ const handleLikes = require("../controllers/handleLikes");
 
 router.get("/list", utils.ensureAuthenticated, handleLikes.listLikes);
 
-router.post("/create", utils.ensureAuthenticated, handleLikes.createLike);
+router.put("/create", utils.ensureAuthenticated, handleLikes.createLike);
 
 module.exports = router;
