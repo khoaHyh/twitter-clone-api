@@ -4,11 +4,7 @@ const passport = require("passport");
 const register = async (req, res, next) => {
   passport.authenticate("register", { session: false }, (err, user, info) => {
     if (err) return next(err);
-    if (
-      info.message === "Missing credentials" ||
-      info.message === "Username cannot be 50 characters or longer." ||
-      info.message === "Username must not contain profanity."
-    ) {
+    if (info.message === "Missing credentials" || info.httpCode === 422) {
       return res.status(422).json({ success: false, message: info.message });
     }
     // If no user object is returned, the user already exists

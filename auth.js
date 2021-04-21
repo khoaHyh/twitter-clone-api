@@ -28,10 +28,12 @@ module.exports = (passport) => {
 
         if (filter.isProfane(username)) {
           return done(null, false, {
+            httpCode: 422,
             message: "Username must not contain profanity.",
           });
         } else if (trimUsername.length >= 50) {
           return done(null, false, {
+            httpCode: 422,
             message: "Username cannot be 50 characters or longer.",
           });
         }

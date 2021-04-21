@@ -17,9 +17,12 @@ const createMessage = async (req, res, next) => {
 
     recipientId = recipientData._id;
 
-    // If the text field trimmed down is empty return 422 and a message
-    if (text.trim() === "") {
-      return res.status(422).json({ message: "Text field empty." });
+    // Don't allow empty messages or messages that exceed 1000 characters
+    if (text.trim() === "" || text.length > 1000) {
+      return res.status(422).json({
+        message:
+          "Text is required and cannot exceed 1000 characters in length.",
+      });
     }
 
     // Key-value data for conversation array in document

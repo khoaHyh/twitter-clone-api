@@ -60,7 +60,7 @@ describe("Direct message route", function () {
       }
     });
 
-    it("should return 400 and a message if text field is empty", async function () {
+    it("should return 422 and a message if text field is empty", async function () {
       try {
         const textEmptyRes = await agent
           .post("/home/direct_messages/events/new")
@@ -71,7 +71,28 @@ describe("Direct message route", function () {
         expect(textEmptyRes.status).to.equal(422);
         expect(textEmptyRes.body)
           .to.have.property("message")
-          .equal("Text field empty.");
+          .equal(
+            "Text is required and cannot exceed 1000 characters in length."
+          );
+      } catch (error) {
+        console.log(error);
+      }
+    });
+
+    it("should return 422 and a message if message exceeds 1000 characters in length", async function () {
+      try {
+        const textEmptyRes = await agent
+          .post("/home/direct_messages/events/new")
+          .send({
+            recipient: "anotherUser",
+            text: seed.thousandOneCharString,
+          });
+        expect(textEmptyRes.status).to.equal(422);
+        expect(textEmptyRes.body)
+          .to.have.property("message")
+          .equal(
+            "Text is required and cannot exceed 1000 characters in length."
+          );
       } catch (error) {
         console.log(error);
       }
