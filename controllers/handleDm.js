@@ -138,7 +138,9 @@ const showSingleMessage = async (req, res, next) => {
     message = document.conversation.id(messageId);
 
     if (!message) {
-      return res.status(404).json({ message: "Message not found." });
+      return res
+        .status(404)
+        .json({ message: "You are not the author or message not found." });
     }
 
     res.status(200).json({

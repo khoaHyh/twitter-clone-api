@@ -10,10 +10,10 @@ chai.use(chaiHttp);
 
 describe("Tweets route", function () {
   const agent = chai.request.agent(app);
-  const string140Char =
-    "fj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
+  const string141Char =
+    "ifj32qo8fjfsdlkjgj982h4qgkfsahkjnvka9842qrsjdglkja98234fsjgkjlhgkj29qjgsahgljkh2ifjl2rfoifjldsgjoiru2oihffhgoi24foigejoijfoijr32jfoidhsafhds2";
   const invalidTextFieldMsg =
-    "Text is required and cannot be or exceed 140 characters in length.";
+    "Text is required and cannot exceed 140 characters in length.";
   let existingUser, anotherUser;
 
   before(async function () {
@@ -60,20 +60,20 @@ describe("Tweets route", function () {
         console.log(error);
       }
     });
-  });
 
-  it("should return 422 if text >= 140 characters in length", async function () {
-    try {
-      const tooLongRes = await agent.post("/home/tweets/create").send({
-        text: string140Char,
-      });
-      expect(tooLongRes.status).to.equal(422);
-      expect(tooLongRes.body)
-        .to.have.property("message")
-        .equal(invalidTextFieldMsg);
-    } catch (error) {
-      console.log(error);
-    }
+    it("should return 422 if text > 140 characters in length", async function () {
+      try {
+        const tooLongRes = await agent.post("/home/tweets/create").send({
+          text: string141Char,
+        });
+        expect(tooLongRes.status).to.equal(422);
+        expect(tooLongRes.body)
+          .to.have.property("message")
+          .equal(invalidTextFieldMsg);
+      } catch (error) {
+        console.log(error);
+      }
+    });
   });
 
   describe("GET /home/tweets/lookup", function () {
@@ -168,11 +168,11 @@ describe("Tweets route", function () {
       }
     });
 
-    it("should return 422 if text >= 140 characters in length", async function () {
+    it("should return 422 if text > 140 characters in length", async function () {
       try {
         const tooLongUpdateRes = await agent.put("/home/tweets/update").send({
           tweetId: existingUser._id,
-          text: string140Char,
+          text: string141Char,
         });
         expect(tooLongUpdateRes.status).to.equal(422);
         expect(tooLongUpdateRes.body)
