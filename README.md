@@ -19,7 +19,7 @@ describe("Some route", function () {
 });
 ```
 
-## Local developement   
+## Local development   
 
 #### `Setup`
 ```shell
@@ -63,22 +63,57 @@ $ npm test
   * Chai
   * Passport.js
 
-## Postman/Insomnia usage examples
-> ObjectId: 607cb8351198bea212fb is used only as an example and may or may not exist in the database.
+## Postman/Insomnia/cURL usage examples
+> ObjectId: 6080d7e4272244772c589d0f is used only as an example and may or may not exist in the database.
 #### Getting all tweets
-#### `GET` `http://localhost:8080/home/tweets/lookup`
+`GET` `http://localhost:8080/home/tweets/lookup`
+##### `cURL`
+```shell
+$ curl --request GET \
+    --url http://localhost:8080/home/tweets/lookup \
+      --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
+```
 #### Showing a single tweet
-#### `GET` `http://localhost:8080/home/tweets/show/607cb8351198bea212fb`
+`GET` `http://localhost:8080/home/tweets/show/6080d7e4272244772c589d0f`
+##### `cURL`
+```shell
+$ curl --request GET \
+    --url http://localhost:8080/home/tweets/show/6080d7e4272244772c589d0f \
+      --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
+```
 #### Creating a tweet
-#### `POST` `http://localhost:8080/home/tweets/create`
+`POST` `http://localhost:8080/home/tweets/create`
 ```
 ## Request body in JSON format
 { "text": "Hello twitter clone!" }
 ```
-#### Updating/Editing a tweet
-#### `PUT` `http://localhost:8080/home/tweets/update`
+##### `cURL`
+```shell
+$ curl --request POST \
+  --url http://localhost:8080/home/tweets/create \
+    --header 'Content-Type: application/json' \
+      --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc \
+        --data '{"text":"Hello twitter clone!"}'
 ```
-{ "id": "607cb8351198bea212fb", "text": "Update this tweet." }
+#### Updating/Editing a tweet
+`PUT` `http://localhost:8080/home/tweets/update`
+```
+{ "id": "6080d7e4272244772c589d0f", "text": "Update this tweet." }
+```
+##### `cURL`
+```shell
+$ curl --request PUT \
+  --url http://localhost:8080/home/tweets/update \
+    --header 'Content-Type: application/json' \
+      --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc \
+        --data '{"id": "6080d7e4272244772c589d0f", "text": "Update this tweet."}'
 ```
 #### Deleting a tweet
-#### `DELETE` `http://localhost:8080/home/tweets/delete?tweetId=607cb8351198bea212fb`
+`DELETE` `http://localhost:8080/home/tweets/delete?tweetId=6080d7e4272244772c589d0f`
+##### `cURL`
+```shell
+$ curl --request DELETE \
+  --url 'http://localhost:8080/home/tweets/delete?tweetId=6080d7e4272244772c589d0f' \
+    --header 'Authorization: Basic Og==' \
+      --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
+```
