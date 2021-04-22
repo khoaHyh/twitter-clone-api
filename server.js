@@ -67,7 +67,7 @@ app.use("/home/likes", likesRoutes);
 app.use((err, req, res, next) => {
   res.status(err.status || 500);
   console.log(err);
-  res.json({ error: err });
+  res.json({ error: `${err}` });
 });
 
 /**** END OF MIDDLEWARE ****/
