@@ -6,7 +6,6 @@ const tweetSchema = new mongoose.Schema({
   updated_at: { type: Date, default: Date.now() },
   text: { type: String, required: true },
   likes: { type: Number, default: 0 },
-  retweet: { type: Boolean, default: false },
   retweet_count: { type: Number, default: 0 },
 });
 

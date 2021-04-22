@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
       created_timestamp: { type: Date, default: Date.now() },
     },
   ],
+  retweets: [
+    {
+      created_timestamp: { type: Date, default: Date.now() },
+    },
+  ],
 });
 
 module.exports = mongoose.model("user", userSchema);

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Tweet = require("../models/tweet");
+const User = require("../models/user");
 const Filter = require("bad-words");
 const filter = new Filter();
 
@@ -96,6 +97,22 @@ const createTweet = async (req, res, next) => {
   }
 };
 
+const listRetweets = async (req, res, next) => {
+  const { user } = req;
+
+  try {
+    // If liked tweets cannot be found for the user, return 404
+    if (user.retweets.length < 1) {
+      return res.status(404).json({ message: "No tweets found." });
+    }
+
+    res.status(200).json(user.retweets);
+  } catch (error) {
+    console.log(error);
+    return next(err);
+  }
+};
+
 const updateTweet = async (req, res, next) => {
   const authorId = req.user._id;
   let { text, tweetId } = req.body;
@@ -177,10 +194,85 @@ const deleteTweet = async (req, res, next) => {
   }
 };
 
+const retweet = async (req, res, next) => {
+  const tweetId = req.params.id;
+  const { user } = req;
+
+  const didUserRetweetAlready = user.retweets.id(tweetId);
+
+  // Don't allow user to retweet a tweet they already retweeted
+  if (didUserRetweetAlready) {
+    return res
+      .status(400)
+      .json({ message: "User already retweeted this tweet." });
+  }
+
+  try {
+    // Increment the retweet count for the tweet and return the new document
+    const retweetedTweet = await Tweet.findByIdAndUpdate(
+      tweetId,
+      { $inc: { retweet_count: 1 } },
+      { new: true }
+    );
+
+    if (!retweetedTweet) {
+      return res.status(404).json({ message: "No tweet found to retweet" });
+    }
+
+    // Push tweet onto user's retweeted tweets array
+    user.retweets.push({ _id: tweetId });
+    await user.save();
+
+    res.status(200).json(retweetedTweet);
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
+const unretweet = async (req, res, next) => {
+  const tweetId = req.params.id;
+  const { user } = req;
+
+  const didUserRetweetAlready = user.retweets.id(tweetId);
+
+  // Don't allow user to unretweet a tweet they never retweeted
+  if (!didUserRetweetAlready) {
+    return res
+      .status(400)
+      .json({ message: "User hasn't retweeted this tweet." });
+  }
+
+  try {
+    // Decrement the retweet count for the tweet and return the new document
+    const retweetedTweet = await Tweet.findByIdAndUpdate(
+      tweetId,
+      { $inc: { retweet_count: -1 } },
+      { new: true }
+    );
+
+    if (!retweetedTweet) {
+      return res.status(404).json({ message: "No tweet found to retweet" });
+    }
+
+    // Remove tweet from user's retweeted tweets array
+    user.retweets.id(tweetId).remove();
+    await user.save();
+
+    res.status(200).json(retweetedTweet);
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   lookupTweets,
   showTweet,
   createTweet,
   updateTweet,
   deleteTweet,
+  listRetweets,
+  retweet,
+  unretweet,
 };
