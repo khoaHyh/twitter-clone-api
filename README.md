@@ -31,7 +31,7 @@ $ npm i
 ```
 
 #### `.env file`
-> You method you use to come up with the session secret is up to your preference. You can set up your own MongoDB cluster using MongoAtlas for free.
+> The method you use to come up with the session secret is up to your preference. You can set up your own MongoDB cluster using MongoAtlas for free.
 ```shell
 SESSION_SECRET=createYourOwnSessionSecret
 MONGO_URI=mongodb+srv://<username>:<password>@clusterName.somethingElseHere.mongodb.net/databaseNameHere?retryWrites=true&w=majority
