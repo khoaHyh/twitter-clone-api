@@ -73,7 +73,9 @@ $ curl --request GET \
     --url http://localhost:8080/home/tweets/lookup \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
 ```
+
 <br />
+
 ### Showing a single tweet
 `GET` `http://localhost:8080/home/tweets/show/6080d7e4272244772c589d0f`
 ##### `cURL`
@@ -82,7 +84,9 @@ $ curl --request GET \
     --url http://localhost:8080/home/tweets/show/6080d7e4272244772c589d0f \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
 ```
+
 <br />
+
 ### Creating a tweet
 `POST` `http://localhost:8080/home/tweets/create`
 ```
@@ -97,7 +101,9 @@ $ curl --request POST \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc \
         --data '{"text":"Hello twitter clone!"}'
 ```
+
 <br />
+
 ### Updating/Editing a tweet
 `PUT` `http://localhost:8080/home/tweets/update`
 ```
@@ -111,7 +117,9 @@ $ curl --request PUT \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc \
         --data '{"id": "6080d7e4272244772c589d0f", "text": "Update this tweet."}'
 ```
+
 <br />
+
 ### Deleting a tweet
 `DELETE` `http://localhost:8080/home/tweets/delete?tweetId=6080d7e4272244772c589d0f`
 ##### `cURL`
