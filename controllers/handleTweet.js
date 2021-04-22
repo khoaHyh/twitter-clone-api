@@ -103,8 +103,7 @@ const updateTweet = async (req, res, next) => {
   try {
     if (!text || text.trim() === "" || text.length > 140) {
       return res.status(422).json({
-        message:
-          "Text is required and cannot be or exceed 140 characters in length.",
+        message: "Text is required and cannot exceed 140 characters in length.",
       });
     }
 

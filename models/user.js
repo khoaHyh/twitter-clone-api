@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema({
   likes: [
     {
       created_timestamp: { type: Date, default: Date.now() },
-      tweetId: { type: String, required: true },
     },
   ],
 });
