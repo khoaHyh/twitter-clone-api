@@ -3,10 +3,10 @@ A backend exposing an API that is similar to Twitter.
 
 ## Known issues
 
-  * Unit/Integration tests may hang or not run at all due to async/await calls.
+  * Unit/Integration tests may hang or not run at all.
       * A current fix is adding `--timeout 10000` to our test script to lengthen timeout
       * It's possible that the connection to our MongoDB database is the problem.
-      * It's also possible that async/await syntax has something to do with this.
+      * It's also possible that async/await syntax is incorrectly being used.
 #### `Possible solution to this:`
 ```javascript
 describe("Some route", function () {
@@ -47,12 +47,13 @@ $ npm test
 ```
 
 ## Features
-  * User registration using unique username  and password
-  * User login (including session maintenance)
-  * Chat with other users (direct messages)
-  * Create, read, update, and delete tweet
-  * Unit/Integration tests for all endpoints above
-  * Like/unlike a tweet
+  * Endpoints with Unit/Integration testing
+      * User registration using unique username  and password
+      * User login (including session maintenance)
+      * Chat with other users (direct messages)
+      * Create, read, update, and delete tweet
+  * Like/unlike a tweet, and list liked tweets
+  * Retweet/unretweet a tweet, and list retweeted tweets
 
 ## Tech/framework used
 #### Built with:                                                                 
