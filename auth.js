@@ -1,8 +1,9 @@
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
-const User = require("./models/user");
 const Filter = require("bad-words");
 const filter = new Filter();
+const User = require("./models/user");
+const utils = require("./utils/utils");
 
 filter.addWords("badword");
 
@@ -44,6 +45,18 @@ module.exports = (passport) => {
         if (user) {
           return done(null, false, {
             message: `Username '${trimUsername}' is taken.`,
+          });
+          // Next two elseifs are password validation checks
+        } else if (!utils.passwordRegexCheck(password)) {
+          return done(null, false, {
+            httpCode: 422,
+            message:
+              "Password must contain at least 8 characters and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.",
+          });
+        } else if (utils.haveTheyBeenPwned(password)) {
+          return done(null, false, {
+            httpCode: 422,
+            message: "Password has been found in database breach.",
           });
         }
 

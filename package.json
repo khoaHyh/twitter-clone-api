@@ -9,6 +9,7 @@
     "test": "mocha --timeout 10000 ./tests/* --exit"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "bad-words": "^3.0.4",
     "bcrypt": "^5.0.1",
     "connect-mongo": "^4.4.0",
