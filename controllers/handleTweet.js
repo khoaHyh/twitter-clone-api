@@ -45,7 +45,10 @@ const showTweet = async (req, res, next) => {
       likes,
       retweet,
       retweet_count,
+      thread,
     } = singleTweet;
+
+    console.log(thread);
 
     res.status(200).json({
       id: _id,
@@ -56,6 +59,7 @@ const showTweet = async (req, res, next) => {
       likes,
       retweet,
       retweet_count,
+      thread,
     });
   } catch (error) {
     console.log(error);
@@ -167,6 +171,7 @@ const updateTweet = async (req, res, next) => {
 const deleteTweet = async (req, res, next) => {
   const authorId = req.user._id;
   const tweetId = req.query.tweetId;
+  let tweetRepliedTo;
 
   try {
     const validObjectId = mongoose.isValidObjectId(tweetId);
@@ -183,6 +188,12 @@ const deleteTweet = async (req, res, next) => {
       return res.status(404).json({
         message: "You are not the author or no tweet found to delete.",
       });
+    } else if (tweetToDelete.reply_to) {
+      // If this tweet was a reply in a thread, remove this tweet from the thread array of
+      // the tweet replied to
+      tweetRepliedTo = await Tweet.findById(tweetToDelete.reply_to);
+      tweetRepliedTo.thread.id(tweetToDelete.reply_to).remove();
+      await tweetRepliedTo.save();
     }
 
     tweetToDelete.deleteOne();
@@ -266,6 +277,60 @@ const unretweet = async (req, res, next) => {
   }
 };
 
+const replyToTweet = async (req, res, next) => {
+  const tweetId = req.query.id;
+  const userId = req.user._id;
+  let { text } = req.body;
+
+  try {
+    const tweetToReplyTo = await Tweet.findById(tweetId);
+
+    // Check if the tweet being replied to exists
+    if (!tweetToReplyTo) {
+      return res
+        .status(404)
+        .json({ message: "The tweet being replied to does not exist." });
+    }
+
+    // Check for empty text and if it exceeds length
+    if (!text || text.trim() === "" || text.length > 140) {
+      return res.status(422).json({
+        message: "Text is required and cannot exceed 140 characters in length.",
+      });
+    }
+
+    const newTweet = await Tweet.create({
+      authorId: userId,
+      text,
+      reply_to: tweetId,
+    });
+
+    if (!newTweet) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong while creating a tweet." });
+    }
+
+    // Construct response object and filter out profanity in tweet content
+    const newTweetResponse = {
+      tweet_replied_to: tweetId,
+      created_at: newTweet.created_at,
+      id: newTweet._id,
+      text: filter.clean(newTweet.text),
+    };
+
+    // Push the new tweet into the array of the tweet being replied to.
+    // This creates a thread
+    tweetToReplyTo.thread.push({ _id: newTweet._id });
+    await tweetToReplyTo.save();
+
+    res.status(201).json(newTweetResponse);
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   lookupTweets,
   showTweet,
@@ -275,4 +340,5 @@ module.exports = {
   listRetweets,
   retweet,
   unretweet,
+  replyToTweet,
 };

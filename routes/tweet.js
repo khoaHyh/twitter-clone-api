@@ -15,6 +15,8 @@ router.get(
 
 router.post("/create", utils.ensureAuthenticated, handleTweet.createTweet);
 
+router.post("/reply", utils.ensureAuthenticated, handleTweet.replyToTweet);
+
 router.post("/retweet/:id", utils.ensureAuthenticated, handleTweet.retweet);
 
 router.put("/update", utils.ensureAuthenticated, handleTweet.updateTweet);
