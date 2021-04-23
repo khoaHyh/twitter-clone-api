@@ -132,6 +132,8 @@ $ curl --request DELETE \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
 ```
 
+<br />
+
 ## Real-time queries
 The current version of the API does not have message queues/real-time queries but in the future it may implement these features through the use of Socket.IO.
 
