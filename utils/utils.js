@@ -29,15 +29,20 @@ const haveTheyBeenPwned = async (password) => {
   let range = hashed.slice(0, 5);
   let suffix = hashed.slice(5);
 
-  // Fetch the range
-  let response = await axios.get(
-    `https://api.pwnedpasswords.com/range/${range}`
-  );
-  let body = await response.text();
+  try {
+    // Fetch the range
+    let response = await axios.get(
+      `https://api.pwnedpasswords.com/range/${range}`
+    );
+    let body = await response.data;
 
-  // Check the range for our suffix
-  let regex = new RegExp(`^${suffix}:`, "m");
-  return regex.test(body);
+    // Check the range for our suffix
+    let regex = new RegExp(`^${suffix}:`, "m");
+    console.log("pwned?", regex.test(body));
+    return regex.test(body);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {

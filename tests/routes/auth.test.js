@@ -70,6 +70,7 @@ describe("Auth route", function () {
       }
     });
 
+    /** USERNAME VALIDATION TESTS START **/
     it("should return 422 if username length >= 50 characters ", async function () {
       try {
         const longUsernameRegisterRes = await chai
@@ -77,7 +78,7 @@ describe("Auth route", function () {
           .post("/register")
           .send({
             username: "324uw0g98u24qorjdslgj92qu3r98uf98sug829u4q98upsdgu",
-            password: "password",
+            password: seed.validatedPassword,
           });
         expect(longUsernameRegisterRes.status).to.equal(422);
         expect(longUsernameRegisterRes.body)
@@ -95,7 +96,7 @@ describe("Auth route", function () {
           .post("/register")
           .send({
             username: "badword",
-            password: "password",
+            password: seed.validatedPassword,
           });
         expect(profanityRegisterRes.status).to.equal(422);
         expect(profanityRegisterRes.body)
@@ -105,6 +106,33 @@ describe("Auth route", function () {
         console.log(error);
       }
     });
+    /** USERNAME VALIDATION TESTS END **/
+
+    /** PASSWORD VALIDATION TESTS START **/
+    it("should return 422 if password doesn't pass regex checks", async function () {
+      const regexRegisterRes = await chai.request(app).post("/register").send({
+        username: "missingSpecialChar",
+        password: "Password12",
+      });
+      expect(regexRegisterRes.status).to.equal(422);
+      expect(regexRegisterRes.body)
+        .to.have.property("message")
+        .equal(
+          "Password must contain at least 8 characters and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character."
+        );
+    });
+
+    it("should return 422 if password was found in database breach", async function () {
+      const regexRegisterRes = await chai.request(app).post("/register").send({
+        username: "myPasswordWasBreached",
+        password: "Password!2",
+      });
+      expect(regexRegisterRes.status).to.equal(422);
+      expect(regexRegisterRes.body)
+        .to.have.property("message")
+        .equal("Password has been found in database breach.");
+    });
+    /** PASSWORD VALIDATION TESTS END **/
   });
 
   describe("POST /login", function () {

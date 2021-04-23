@@ -40,6 +40,7 @@ module.exports = (passport) => {
         }
 
         let user = await User.findOne({ username: trimUsername });
+        const pwned = await utils.haveTheyBeenPwned(password);
 
         // If a user document exists then the username is taken
         if (user) {
@@ -53,7 +54,7 @@ module.exports = (passport) => {
             message:
               "Password must contain at least 8 characters and must contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character.",
           });
-        } else if (utils.haveTheyBeenPwned(password)) {
+        } else if (pwned) {
           return done(null, false, {
             httpCode: 422,
             message: "Password has been found in database breach.",
