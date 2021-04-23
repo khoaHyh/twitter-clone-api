@@ -40,7 +40,7 @@ module.exports = (passport) => {
         }
 
         let user = await User.findOne({ username: trimUsername });
-        const pwned = await utils.haveTheyBeenPwned(password);
+        const pwned = await utils.haveTheyBeenPwned(password, done);
 
         // If a user document exists then the username is taken
         if (user) {

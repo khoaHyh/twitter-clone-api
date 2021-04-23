@@ -17,7 +17,7 @@ const passwordRegexCheck = (password) => {
 
 // Uses haveibeenpwned API to check if user password has been found in database breaches
 // Source: https://github.com/jamiebuilds/havetheybeenpwned
-const haveTheyBeenPwned = async (password) => {
+const haveTheyBeenPwned = async (password, callback) => {
   // Create a hashed version of the password in a format that the API expects
   let hashed = crypto
     .createHash("sha1")
@@ -38,10 +38,13 @@ const haveTheyBeenPwned = async (password) => {
 
     // Check the range for our suffix
     let regex = new RegExp(`^${suffix}:`, "m");
-    console.log("pwned?", regex.test(body));
     return regex.test(body);
   } catch (error) {
     console.log(error);
+    return done(null, false, {
+      httpCode: 500,
+      message: "Error while fetching from pwnedpasswords API",
+    });
   }
 };
 

@@ -7,6 +7,7 @@ const register = async (req, res, next) => {
     if (info.message === "Missing credentials" || info.httpCode === 422) {
       return res.status(422).json({ success: false, message: info.message });
     }
+    if (info.httpCode === 500) return next(err);
     // If no user object is returned, the user already exists
     if (!user) {
       return res.status(409).json({ success: false, message: info.message });
