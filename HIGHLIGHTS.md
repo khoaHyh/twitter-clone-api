@@ -4,7 +4,7 @@ This is a document highlighting some of the sections of the project.
 
 ## Threading
 
-Twitter threads are created when a tweet is posted in response to another tweet. My implementation was modeled after Linked Lists and treating each tweet as a node. 
+Twitter threads are created when a tweet is posted in response to another tweet. My implementation was modeled after Doubly Linked Lists and treating each tweet as a node. 
 
 <br />
 
