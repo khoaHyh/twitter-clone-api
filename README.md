@@ -54,6 +54,7 @@ $ npm test
       * Create, read, update, and delete tweet
   * Like/unlike a tweet, and list liked tweets
   * Retweet/unretweet a tweet, and list retweeted tweets
+  * Twitter 'Threads'
 
 ## Tech/framework used
 #### Built with:                                                                 
