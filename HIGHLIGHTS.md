@@ -8,7 +8,7 @@ Twitter threads are created when a tweet is posted in response to another tweet.
 
 <br />
 
-The idea is that each tweet may contain a 'pointer' to another tweet. This pointer is named 'reply_to' in the tweet schema. Each tweet also contains property 'thread' which is an array which possibly contains tweets replying to it. These optional pointers gives us flexibility by allowing a tweet to be a standalone tweet, a reply, or a thread starter and a reply.
+The idea is that each tweet may contain a 'pointer' to another tweet. This pointer is named 'reply_to' in the tweet schema. Each tweet also contains property 'thread' which is an array which possibly contains tweets replying to it. These optional pointers give us flexibility by allowing a tweet to be a standalone tweet, a reply, or a thread starter and a reply.
 
 <br />
 
