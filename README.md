@@ -131,3 +131,115 @@ $ curl --request DELETE \
     --header 'Authorization: Basic Og==' \
       --cookie express.sid=s%253Av9TA4jEHtDtsd1CpJyBZ-jTzH-J7ZWJG.x9dXU8Pt7Bv0zttxVQ6V0xkrCIhLQcjtKhUsKOLbBPc
 ```
+
+## Real-time queries
+The current version of the API does not have message queues/real-time queries but in the future it may implement these features through the use of Socket.IO.
+
+```javascript
+// Example socket io code in server.js
+
+// Parse and decode the cookie that contains the passport session
+// then deserialize to obtain user object
+io.use(
+  passportSocketIo.authorize({
+    cookieParser: cookieParser,
+    key: "express.sid",
+    secret: process.env.SESSION_SECRET,
+    store: sessionStore,
+    success: onAuthorize.success,
+    fail: onAuthorize.fail,
+  })
+);
+
+io.on('connection', socket => {
+  const user = socket.request.user.username;
+
+  // Listen for user disconnect event
+  socket.on('disconnect', () => {
+    io.emit('message', `${user} has left the chat.`);
+  });
+
+  // Listen for sent message
+  socket.on('send-message', async ({ id, text, recipient }) => {
+    let recipientId;
+    const senderId = req.user._id;
+    const timestamp = Date.now();
+
+    try {
+      const recipientData = await User.findOne({ username: recipient });
+
+      if (!recipientData) {
+        return res.status(404).json({ message: "Recipient not found." });
+      }
+
+      recipientId = recipientData._id;
+
+      // Don't allow empty messages or messages that exceed 1000 characters
+      if (text.trim() === "" || text.length > 1000) {
+        return res.status(422).json({
+          message:
+            "Text is required and cannot exceed 1000 characters in length.",
+        });
+      }
+
+      // Key-value data for conversation array in document
+      const messageData = {
+        created_timestamp: timestamp,
+        text,
+      };
+
+      let idExisted = false; // Flag to let client know if the DM existed
+      let newDm;
+
+      // Validate ids we receive from request (note: 'null' is a valid ObjectId for mongodb schemas)
+      const validObjectId = mongoose.isValidObjectId(id);
+
+      if (validObjectId) {
+        newDm = await DirectMessage.findOne({ _id: id, recipientId, senderId });
+      }
+
+      // If the id is invalid or the document could not be found, create a new DM
+      if (!validObjectId || !newDm) {
+        newDm = await DirectMessage.create({
+          recipientId,
+          senderId,
+          conversation: messageData,
+        });
+        id = newDm._id;
+      } else {
+        idExisted = true;
+        newDm.conversation.push(messageData); // push message into conversation array
+
+        await newDm.save();
+      }
+      let totalMessages = newDm.conversation.length - 1;
+      let messageId = newDm.conversation[totalMessages]._id;
+
+      let responseObj = {
+        type: "message_create",
+        valid_object_id: validObjectId, // let client know if id sent was valid
+        dm_existed: idExisted, // lets client know if the dm existed previously
+        id,
+        created_timestamp: timestamp,
+        message_create: {
+          recipient_name: recipientData.username,
+          recipient_id: recipientId,
+          username: req.user.username,
+          sender_id: senderId,
+          // In the future we may return attachments, user_mentions, etc inside message_data
+          message_data: {
+            message_id: messageId,
+            text,
+          },
+        },
+      }
+
+      // Emit 'receive-message' event with message data
+      socket.emit('receive-message', responseObj);
+    } catch (error) {
+      console.log(error);
+      return next(error);
+    }
+  });
+});
+```
