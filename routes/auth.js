@@ -7,7 +7,7 @@ const handleAuth = require("../controllers/handleAuth");
 router.post("/register", handleAuth.register);
 
 // Login route
-router.post("/login", handleAuth.login);
+router.post("/login", utils.prohibitAuthenticated, handleAuth.login);
 
 // Logout route
 router.get("/logout", handleAuth.logout);
