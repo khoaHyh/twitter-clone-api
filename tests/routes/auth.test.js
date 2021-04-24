@@ -166,6 +166,25 @@ describe("Auth route", function () {
         console.log(error);
       }
     });
+
+    it("should return 200 and a message if user tries to login while authenticated", async function () {
+      try {
+        const agent = await chai.request.agent(app);
+        await agent.post("/login").send(seed.existingUser);
+
+        const loginWhileAuthRes = await agent
+          .post("/login")
+          .send(seed.existingUser);
+        expect(loginWhileAuthRes.status).to.equal(200);
+        expect(loginWhileAuthRes.body)
+          .to.have.property("message")
+          .equal("Already authenticated.");
+
+        await agent.get("/logout");
+      } catch (error) {
+        console.log(error);
+      }
+    });
   });
 
   // Utilize .request.agent from chai-http to authenticate user and perform requests as an authenticated user
