@@ -33,6 +33,14 @@ describe("Tweets route", function () {
     }
   });
 
+  after(async function () {
+    try {
+      await agent.get("/logout");
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   describe("POST /home/tweets/create", function () {
     it("should return 201 and response body if tweet is successfully created", async function () {
       try {

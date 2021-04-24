@@ -23,6 +23,15 @@ describe("Direct message route", function () {
     }
   });
 
+  after(async function () {
+    try {
+      await agent.get("/logout");
+      await ghostAgent.get("/logout");
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
   describe("POST /home/direct_messages/events/new", function () {
     it("should return 201 and response body if a message is created", async function () {
       try {

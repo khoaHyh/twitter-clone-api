@@ -1,8 +1,9 @@
+require("dotenv").config();
 const chai = require("chai");
 const { expect } = chai;
-const { app } = require("../../server");
-const faker = require("faker");
 const chaiHttp = require("chai-http");
+const mongoose = require("mongoose");
+const { app } = require("../../server");
 const seed = require("../seed");
 const User = require("../../models/user");
 
@@ -35,6 +36,8 @@ describe("Auth route", function () {
           .send(seed.newUser);
         expect(successRegisterRes.status).to.equal(201);
         expect(successRegisterRes.body).to.have.property("userId");
+
+        await chai.request(app).get("/logout");
       } catch (error) {
         console.log(error);
       }
@@ -145,6 +148,8 @@ describe("Auth route", function () {
 
         expect(successLoginRes.status).to.equal(200);
         expect(successLoginRes.body).to.have.property("userId");
+
+        await chai.request(app).get("/logout");
       } catch (error) {
         console.log(error);
       }
