@@ -1,6 +1,8 @@
 # Twitter-clone-api                                                                         
 A backend exposing an API that is similar to Twitter.
 
+![demo](./assets/twitter-clone-api_ss.png)
+
 ## Known issues
 
   * Unit/Integration tests may hang or not run at all.
