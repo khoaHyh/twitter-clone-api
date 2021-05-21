@@ -169,7 +169,7 @@ describe("Auth route", function () {
 
     it("should return 200 and a message if user tries to login while authenticated", async function () {
       try {
-        const agent = await chai.request.agent(app);
+        const agent = chai.request.agent(app);
         await agent.post("/login").send(seed.existingUser);
 
         const loginWhileAuthRes = await agent
